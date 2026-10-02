@@ -75,7 +75,7 @@ The skill is a small bundle: `SKILL.md`, the files in `references/` that are loa
 
 **Other systems:** keep the folder structure intact wherever your platform expects skills, and let your AI guide you (see "How it works" above).
 
-**From the command line (skills.sh):** `npx skills add rebelytics/one-skill-to-rule-them-all --skill task-observer`. This is the most-used install route — the skills.sh listing reports over 7,000 installs, and it carries independent security audits from Gen Agent Trust Hub, Socket and Snyk.
+**From the command line (Vercel's skills CLI):** `npx skills add rebelytics/one-skill-to-rule-them-all --skill task-observer`. This is the most-used install route — the skills.sh listing reports over 9,000 installs, a lower bound because the CLI's install telemetry is opt-out, and it carries independent security audits from Gen Agent Trust Hub, Socket and Snyk.
 
 **Check that it actually runs.** Installing the files is not the same as activating the skill: description matching alone under-triggers, so add the activation instruction from `references/environments.md` to your CLAUDE.md (or your platform's equivalent) or install the session-start hook. Then verify in a *new* session — the session you install in cannot prove it — that the skill is invoked before the first tool call. The external tell if you skipped this: if `skill-observations/observation-log/` doesn't exist after a few sessions of real work, activation never happened.
 
