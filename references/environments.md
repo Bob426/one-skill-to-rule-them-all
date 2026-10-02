@@ -906,6 +906,25 @@ hand-off, not a principle consulted while authoring. The third instance
 above happened in the same session that had written the principle down,
 which is what a rule without a step looks like.
 
+**An install is a path handed across the same boundary.** A tool installed
+for the user from the agent's shell inside a packaged app — a global npm
+install, a per-user pip install, anything that writes under a redirected
+`AppData` path — lands in the package's `LocalCache`, and every check the
+agent runs from inside finds it where it was expected. Install from the
+user's side (a command the person runs in their own terminal), or say in
+the hand-off that the install is visible only inside the app. Not every
+`AppData` path is redirected (`%TEMP%`, under `AppData\Local`, was not on
+the host where this was observed), so "under AppData" is a first
+approximation; a check from the far side settles a given path. **Process
+state does not cross either.** The agent's shell can carry a process-level
+execution policy and its own `PATH`, so a pre-flight run inside proves
+nothing about the user's default policy (`Restricted` on a Windows client
+unless changed) or about which commands their terminal finds: hand npm
+tools over — `npm` and `npx` included — in their `.cmd` form, which the
+policy does not govern, not as the `.ps1` shim it refuses. The app's own
+terminal panel is a child of the packaged app and inherits its startup
+environment, so it is not the user's side either.
+
 ## Environment mappings
 
 The procedures in this skill are written as capabilities. This table is
