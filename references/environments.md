@@ -19,6 +19,7 @@ in an environment without filesystem access.
   - A third denial class: an automated content classifier
   - A delegated setup step is not done until you have observed it
   - Paths handed across a boundary are resolved from the far side
+  - Windows hosts: what reaches the shell and the file
 - Environment mappings
 - Git as an optional staging medium
 - Claude Code Projects — disposable threads, no local skills, no pinned
@@ -924,6 +925,35 @@ tools over — `npm` and `npx` included — in their `.cmd` form, which the
 policy does not govern, not as the `.ps1` shim it refuses. The app's own
 terminal panel is a child of the packaged app and inherits its startup
 environment, so it is not the user's side either.
+
+### Windows hosts: what reaches the shell and the file
+
+Two Windows transforms change content and report nothing.
+
+**Backslashes through an agent's Bash tool.** Where the agent's Bash tool
+runs Git for Windows' bash and hands it the whole command as one `-c`
+argument, runs of backslashes have been observed to arrive halved
+anywhere in the command — inside single quotes and quoted heredocs too —
+except directly before a double quote; a single backslash arrives intact,
+and the same command run from a file arrives exact. A body written through
+that shell loses one backslash of every `\\`, and an inline snippet that
+carries `\\` runs altered: the session-start scan's `suspect` program,
+halved, is rejected by gawk, mawk and BWK awk, so the count reads 0 with
+an error on stderr. Test a host once with `printf '%s\n' 'a\\b' | od -c`:
+two backslashes in the output mean the transport is exact. Where it is
+not, write observation bodies and any other content holding backslashes
+with the editing tool, and run a snippet that carries `\\` from a file
+written with the editing tool (`bash <file>`). Very long inline commands
+have also been reported cut on the same transport, so keep inline commands
+short and put long content in files.
+
+**A byte order mark from Windows PowerShell.** PowerShell 5.1 writes UTF-8
+with a BOM (`Set-Content -Encoding UTF8`, `Out-File -Encoding utf8`).
+Every header reader tests line 1 for `---`, so an entry written that way
+drops out of the session-start scan — `parsed` one below `files`, with no
+warning while other headers parse — and the archival sweep never moves
+it. Write entries with the editing tool or the helper script; in
+PowerShell 7, `-Encoding utf8NoBOM`.
 
 ## Environment mappings
 

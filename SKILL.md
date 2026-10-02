@@ -423,8 +423,8 @@ The listing guard tells "the log says zero" from "I could not read
 the log", the sweep's count does the same for the archival loop, the prefix
 guard refuses a number already in use under any slug, and the `noclobber`
 create refuses an existing path — write the body only after that create
-succeeds, with the editing tool or a QUOTED heredoc, never an unquoted
-one: `references/observation-log.md` ("Editing an existing observation").
+succeeds, with the editing tool, or a QUOTED heredoc (never unquoted) where
+commands arrive unaltered: `references/observation-log.md` ("Editing an existing observation").
 Load `references/observation-log.md` ("The guard line, the sweep's count
 and the noclobber create") when any of them fires.
 

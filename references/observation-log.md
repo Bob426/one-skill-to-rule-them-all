@@ -1340,7 +1340,10 @@ it: the file is created, it looks superficially right, and parts of its
 content have been replaced by the output of commands. Quote the delimiter
 (`<<'OBS'`) whenever a shell write is genuinely the only path — a
 `set -C` noclobber create has no editing-tool equivalent — and prefer the
-editing tool everywhere else. Where the shell is that only path, write the
+editing tool everywhere else. A quoted heredoc is exact only where the
+shell receives the command as typed; on a host whose shell tool rewrites
+it in transit (`environments.md`, "Windows hosts: what reaches the shell
+and the file"), the body goes through the editing tool. Where the shell is that only path, write the
 frontmatter with `printf` and the body with a QUOTED heredoc: quoting the
 delimiter disables every substitution, so the body cannot carry
 variables, and the id and the dates go in the `printf` above it —
