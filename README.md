@@ -153,6 +153,7 @@ task-observer is indexed in these community lists and skill directories:
 - [CorpusIQ — Hermes skills catalog](https://www.corpusiq.io/docs/hermes/skills/catalog/task-observer-setup)
 - [SkillFoxx](https://skillfoxx.ru/en/skills/task-observer-one-skill-to-rule-them-all)
 - [Zread](https://zread.ai/rebelytics/one-skill-to-rule-them-all)
+- [TypingMind](https://www.typingmind.com/skills/rebelytics-task-observer)
 
 It is also redistributed, unmodified and under CC BY 4.0, in [iamneilroberts/claude-skills](https://github.com/iamneilroberts/claude-skills).
 
@@ -200,6 +201,8 @@ I would like to thank the following creators, platforms, publications, companies
 - Uday Sharma: [https://medium.com/@neuraldev/5-claude-code-plugins-that-take-your-setup-to-the-next-level-d5d61c2c5828](https://medium.com/@neuraldev/5-claude-code-plugins-that-take-your-setup-to-the-next-level-d5d61c2c5828)
 - SnowTiger: [https://www.toutiao.com/article/7687548501114225192/](https://www.toutiao.com/article/7687548501114225192/)
 - Divad: [https://divadsanders.medium.com/i-fixed-everything-wrong-with-claude-code-5-best-claude-plugins-c1af8d813ee1](https://divadsanders.medium.com/i-fixed-everything-wrong-with-claude-code-5-best-claude-plugins-c1af8d813ee1)
+- Abhijay Arora Vuyyuru (AI Action Letter): [https://abhijayvuyyuru.substack.com/p/dont-use-claude-code-without-these](https://abhijayvuyyuru.substack.com/p/dont-use-claude-code-without-these)
+- The Ai Impact: [https://www.theaiimpact.co/guides/claude-code-add-ons](https://www.theaiimpact.co/guides/claude-code-add-ons)
 
 If I forgot to list your recommendation here, please let me know or submit it via a PR in the same format as the others.
 
