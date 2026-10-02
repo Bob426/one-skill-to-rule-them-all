@@ -450,7 +450,11 @@ issues AND pull requests for the same problem — if a report is adjacent
 but distinct, reference it and delineate scope instead of duplicating it;
 (2) read the maintainer's stated contribution preference
 (README/CONTRIBUTING; merged community PRs are evidence that PRs are
-welcome) and use the preferred channel — a concrete fix travels as a PR
+welcome, but the converse does not hold: a maintainer who reimplements
+contributions closes them unmerged, so before reading a low merge count as
+low acceptance, read the closing comments of the closed PRs — "superseded",
+"incorporated in vX.Y" or a credit in the release notes counts as
+accepted) and use the preferred channel — a concrete fix travels as a PR
 where PRs are welcome, otherwise as an issue; (3) when the local install
 is modified or may have drifted, verify the problem still exists at
 upstream HEAD before reporting it; (4) match the repository's house style
