@@ -855,8 +855,12 @@ observation numbers, client or environment specifics) — or **`leave
 out`** (personal strategy, or specific to one environment). Append the
 verdict to the triage reference, keyed by principle number, so the
 classification is per entry and dated by the edit that prompted it.
-Then, for this skill, stage the starter-file change alongside the
-principle change rather than as a follow-up: append the scrubbed entry,
+Both writes in this paragraph are the maintainer's: where Step 2 puts
+this skill in (b), the triage reference is the maintainer's own file and
+the starter file is a bundle file no local edit survives, so the verdict
+only decides the offer in the next paragraph. Where the user maintains
+this skill, stage the starter-file change alongside the principle change
+rather than as a follow-up: append the scrubbed entry,
 bump the `Starter set version:` line at the top of the starter file
 (every adopter's reconciliation offer is gated on that number, so an
 unbumped version ships the new entry to nobody), and run the
