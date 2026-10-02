@@ -455,9 +455,16 @@ contributions closes them unmerged, so before reading a low merge count as
 low acceptance, read the closing comments of the closed PRs — "superseded",
 "incorporated in vX.Y" or a credit in the release notes counts as
 accepted) and use the preferred channel — a concrete fix travels as a PR
-where PRs are welcome, otherwise as an issue; (3) when the local install
-is modified or may have drifted, verify the problem still exists at
-upstream HEAD before reporting it; (4) match the repository's house style
+where PRs are welcome, otherwise as an issue; (3) whenever the report
+cites or quotes upstream text — a line number, a count, a rule's wording —
+fetch each cited file from upstream HEAD and compare it with the copy you
+cite from (`curl` the raw file, then `cmp`), and state the outcome and the
+command in the report: a citation from an unchecked local copy reads
+exactly like one from HEAD, and a clean install is where nobody suspects
+drift; when the copies differ or the local install is modified, re-read
+the defect itself at HEAD, because it may already be fixed; a draft
+written in an earlier session is checked again before it is sent; (4)
+match the repository's house style
 for reports. The pre-flight is where this skill reaches the network, and
 only after the user has asked for a report to be drafted; nothing before
 that point fetches anything.
