@@ -311,6 +311,26 @@ mark each source entry `actioned` with a resolution naming the target
 id, and then leave a pointer file at the abandoned location so sessions
 anchored there get redirected instead of re-creating the fork.
 
+**A re-anchor moves the root, not only the log.** Session Start step 1's
+ephemeral-to-stable re-anchor and a shard consolidation relocate every
+artefact the pin governs (the derived paths in the activation block
+above), not the log alone: `skill-updates/` with `PENDING.md` and every
+dated staging directory, `cross-cutting-principles.md` and
+`skill-families.md` (merged by substance where the target has its own),
+`last-review-date.txt` (keep the later date),
+`starter-principles-reviewed.txt` (keep the newer version), and
+`reviews/` and `checkpoints.log` as history. Step 6 reads `skill-updates/`
+at the current root only, so staged work left at the old one is
+invisible, and an absent `PENDING.md` reads as "nothing staged"
+(observed: several rounds of staged updates sat unlanded under an
+abandoned root for days and surfaced only in an unrelated filesystem
+sweep). Move staged directories whole; at the new root they go through
+the staging reconciliation like any other entry (`weekly-review.md`,
+"Staged-work reconciliation gate"). Where a move is not safe — a session
+may still be writing at the old root — list what the old root's
+`skill-updates/` holds to the user in one line rather than leaving it
+behind silently.
+
 **Report-back mode — when no pinned path resolves.** The Session Start
 guard warns and re-anchors when the resolved workspace sits under an
 ephemeral checkout. That assumes a stable path exists to re-anchor on. In
