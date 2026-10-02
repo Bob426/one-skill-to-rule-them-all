@@ -558,8 +558,9 @@ harness that runs the hook for a subagent whose caller owns its output
 must not wire it there ("Sessions whose output channel is owned by a
 caller"); and like every trigger, it is armed only once it has matched the
 real event — run it against a transcript with tool calls and no write,
-then against the same with a checkpoint line appended, before trusting
-either outcome.
+then against the same with a checkpoint line appended and the transcript
+appended to after it (a start time read from the change time blocks that
+one), before trusting either outcome.
 
 ### Verify activation in a NEW session — the installing session cannot prove it
 
