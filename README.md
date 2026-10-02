@@ -10,6 +10,12 @@ The current version of task-observer also includes improvements from 69 differen
 
 This meta-skill is a practical application of the [Augmented Expertise](https://www.rebelytics.com/augmented-expertise/) methodology, an AI framework for knowledge workers. However, users have reported successful integrations into their Hermes and Openclaw setups, so it works equally well with autonomous agents.
 
+## Quick install
+
+1. **From a terminal (Vercel's skills CLI, needs Node.js):** `npx skills add rebelytics/one-skill-to-rule-them-all --skill task-observer` — add `-g` to install it for all your projects.
+2. **In the Claude apps (web, desktop, mobile, Cowork):** upload the `.skill` bundle from the latest release via Settings → Customize.
+3. **Then activate it:** add the activation instruction from `references/environments.md` to your CLAUDE.md (or your platform's equivalent). Installing alone is not enough, because description matching under-triggers; see "Check that it actually runs" below.
+
 ## Why you should use task-observer
 
 Creating skills is powerful but time-consuming. The skills that do get built stay frozen: they never learn from how you actually use them.
