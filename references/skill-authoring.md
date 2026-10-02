@@ -1196,6 +1196,28 @@ reviews. Two independent movers flagging the same ambiguity means the
 brief is the defect: fix the brief and re-issue rather than adjudicating
 the outputs.
 
+**A script that ships with a skill is verified by a hostile test, not a
+normal run.** Each of these failure shapes passes an ordinary run and is
+caught only by a test built to break it.
+
+1. A script that rewrites part of a file reads and writes bytes, or keeps
+   each line's own ending: text-mode I/O rewrites every line ending of a
+   CRLF file while the edited values come out right. Test with CRLF, a
+   BOM and no trailing newline, and assert byte-identity outside the
+   edited region.
+2. A negative requirement ("never opens the private names file") needs a
+   runtime observation mechanism, an assertion that the mechanism
+   recorded something at all, and one run against a deliberately broken
+   version that turns the test red. Otherwise a mis-wired check passes
+   vacuously.
+3. An acceptance fixture ships with its runner (this skill's is
+   `scripts/validate-skill-bundle.py --selftest`), or it decays into a
+   one-off that nobody re-runs after the next change.
+4. The first smoke run of a script that writes points it at a throw-away
+   directory and asserts that the default location was not touched: a
+   subcommand that re-declares a global option can clobber it, and the
+   smoke test then writes into the real home folder.
+
 ## Runtime prerequisites — declare what the skill needs to be able to run
 
 A skill that drives something outside itself — a CLI binary, a daemon, an
