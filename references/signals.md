@@ -129,6 +129,19 @@ a script that performs the step so it cannot be performed differently. What
 does not count: a bolder warning, the same rule moved somewhere more
 prominent, a checklist item, or a promise to be careful.
 
+**A barrier counts once it is armed, not once it is written** — and a
+change to an existing one, including a new branch added behind an entry
+point that is already registered, is a new barrier for this purpose.
+Arm it the way `observation-log.md` arms any enforcement trigger ("Two
+gaps the checkpoint pairing still leaves — and the rule behind both"): the
+real command it must refuse, and a legitimate one from the real tool
+record, both run through it. Passing synthetic payloads are evidence about
+the author's model of the input, not about the input, and the proof of the
+other triggers in the same file says nothing about the added one. For a
+barrier on shell commands, this skill's own snippets are legitimate
+commands it will meet early — the id derivation and the session-start
+scan are compound scripts with command substitution — so include them.
+
 **Where this matters most** is the class where the absence of an error is
 not evidence of success — silent corruption, a command that exits 0 having
 done the wrong thing, a check that cannot come out negative. There, a
