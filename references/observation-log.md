@@ -1568,6 +1568,21 @@ as a side effect of work you were doing anyway, rather than depending on a
 separate act of memory. The count need not be precise; roughly every third
 completion is the rule.
 
+**A claimed write is not a write.** Every rule above binds on the write;
+the summary that reports it needs its own rule, because a closing line
+can name ids and titles in exactly the form a true one takes, discharge
+the felt obligation, and leave nothing on disk. That is worse than
+forgetting: a forgotten write leaves a gap the next checkpoint catches,
+a narrated one reads as a checkpoint already passed, and an invented id
+can later coincide with a real one and become indistinguishable from it
+on audit (observed: a closing summary named two ids that no create had
+printed; the gap surfaced only when the next real write's id snippet
+reported fewer files than the claimed ids implied). So the Surfacing
+self-check binds on the narration: each id a summary names is one the
+snippet or `scripts/new-observation.sh` printed in this session's tool
+record, and the summary is rendered from a listing of `observation-log/`
+taken in the same turn, never from memory of having written it.
+
 ### The scan ends in a write, not only a print
 
 Loading this skill and executing this protocol are two acts, and only the

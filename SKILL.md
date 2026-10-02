@@ -613,9 +613,9 @@ parallel review has staged. See "Acting on Observations".
 whole session (including discussion phases) without interrupting the task; each follows
 Issue → Improvement → Principle; each is typed; existing-skill items name
 the section; no open-source Principle contains client-identifying info;
-every observation file carries `status:` (`status: open` at write time) and
-a non-empty `siblings_checked:` — if any lacks one, do the sibling check
-now and record it rather than back-filling the field with `none`.
+every file carries `status:` and a non-empty `siblings_checked:` (if one lacks
+it, do the sibling check now, never back-fill `none`); every id the summary
+names is one a create printed this session, re-listed this turn, never recalled.
 
 ## Acting on Observations
 
