@@ -41,6 +41,14 @@ Some observations reveal patterns that aren't specific to one skill. These get c
 
 The observer doesn't modify your skills directly. It produces recommendations that you review. You stay in control of what changes and when.
 
+## How this differs from project memory
+
+Claude Code Projects can write project memory on its own: when you correct a thread and tell Claude to remember the correction, it goes into that project's memory and later threads start with it. Those entries are notes the agent keeps to, scoped to one project, and they are deleted with the project.
+
+Task Observer does a different job, and the two work best together. **Scope:** project memory records a fact or a pitfall for *this* project; Task Observer turns recurring friction into a change to a reusable skill, which then carries into every project that loads that skill. **Control:** project memory is written automatically and applied as an instruction; a Task Observer observation is a proposal, and a human review sits between the observation and the rule it becomes. Nothing changes a skill until you install the staged update.
+
+The practical link: a pitfall you find yourself storing in project memory more than once, or in more than one project, is a Task Observer signal — it has stopped being about the project and started being about the skill.
+
 ## Who it's for
 
 You don't need to be a developer. If you use skills in any capacity and you want those skills to get better over time instead of staying frozen, this is for you.
