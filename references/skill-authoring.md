@@ -501,7 +501,10 @@ had passed, the identifier scan was clean, and a post-publication
 comparison that normalised whitespace called the bodies identical. So,
 for any report handed over to be posted by hand: (1) **shape** — each
 field alone in its own fenced block, the fence longer than any backtick
-run inside it, the target field named on the line above the block
+run inside it and carrying no info string (a selection that starts on the
+fence line, or on the label a viewer renders from it, has pasted the
+language name as the value's first line), the target field named on the
+line above the block
 ("paste into Title") and never as a label on the value's line; one
 paragraph per line with the blank lines between them kept, because issue
 bodies render a single newline as a line break; draft metadata meant for
