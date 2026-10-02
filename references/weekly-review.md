@@ -225,6 +225,17 @@ for the gated actions: halt, then ask in plain chat text what the user
 wants. Only an explicit go (blanket or per-item) authorizes applying;
 "apply the observations" as the review's trigger phrase still gates each
 application on this policy, it does not pre-approve the changes.
+**An approved step the tool layer refuses is not attempted again.** The
+user's approval and a harness's permission classifier are two gates, and
+the second judges by its own rules. When an approved action on the user's
+own files outside the workspace — a deletion, a move to the trash,
+removing a section from an instruction file — is refused at the tool
+layer, retry it in no form (the one identical retry in SKILL.md, How to
+Log, is for the skill's own workspace writes); record the item as pending
+with the refusal's words, hand it to the user in the closing summary as a
+step with exact paths, and continue the rest of the apply phase. Run
+preparatory work (anchors, backups) in calls of its own, never in the
+call that carries such an action, so one refusal does not take it down.
 
 **Scheduled autonomous (user absent):** apply non-escalated observations by
 default — safety comes from the staging-plus-review pattern (nothing is
