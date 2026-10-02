@@ -609,6 +609,34 @@ a claim about the corpus only once the instrument is known to see the
 corpus (the timelessness scan in `skill-authoring.md` records which
 patterns ran for exactly this reason).
 
+**A populated result gets the guard too, and is questioned less than a
+zero because it looks like evidence.** Five shapes pass every
+empty-result check above: a verdict identical for the whole population
+(every expected file reported `MISSING`, because a path-conversion step
+failed to an empty string on every iteration and turned the later
+`[ -f ]` test into a constant); a small, plausible minority of findings
+that are all false positives of the instrument itself; two instruments
+over one population that disagree, hidden by a third "any left?" check
+that validates neither; a complete-looking response whose termination
+metadata says it was cut off; and an exit status read from the wrong
+command. So: a verdict that is uniform across the population is a claim
+about the instrument, probed like an empty one, with one element whose
+answer is known by other means. Where a check transforms its input
+(parse, path conversion, decode), print the transformed value before
+judging it. Where two instruments measure one population, assert
+`before - fixed = after` rather than checking only the final state.
+Before reporting a list of findings, open one of them in its original
+context. Read termination metadata (`finish_reason`, `done_reason`,
+`truncated`, an exit code) next to the content it qualifies, because
+looking complete is exactly what truncated output does. Capture an exit
+status in the statement right after the command (`cmd; rc=$?`), never
+inside a string that also runs a command substitution: in
+`echo "$(basename "$d") exit=$?"` bash reports the substitution's
+status, not the command's, and other shells differ. And for a new alarm
+or error branch, count the real inputs that reach it today: zero means
+the input is missing or the branch is unnecessary, and a green unit test
+does not tell the two apart.
+
 **A claim about how an external system behaves is an instrument reading,
 and gets the same guard — whatever produced it.** Whether it comes from a
 delegated agent's report, from a tool written this session, or from the
