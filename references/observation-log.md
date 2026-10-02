@@ -111,6 +111,17 @@ rather than this command: `starter-principles-reviewed.txt` (starter-set
 reconciliation) and `skill-families.md` (created when the first family
 is named).
 
+**A read-only or permission error on an allowlisted path is a missing
+path, not an unwritable log.** When this command fails with `Read-only
+file system` or a permission error on a workspace path the harness's
+write allowlist names, the likely cause is that the path does not exist
+yet and the sandbox cannot create it (`environments.md`, "Anchoring the
+workspace", "A grant names a path"). Say that to the user in one line and
+hand them the fix — create `skill-observations/` and `skill-updates/`
+under the pinned root from outside the sandbox — instead of retrying
+through another interface or falling through to the unwritable-log or
+no-filesystem branches.
+
 **Why a command and not the prose list it replaces.** Observed on a fresh
 user-scope install: a session created `skill-observations/` and
 `observation-log/` and nothing else. The next session could not tell —

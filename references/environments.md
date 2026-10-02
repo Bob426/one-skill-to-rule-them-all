@@ -323,6 +323,25 @@ repository via PR, and say in the report which route was taken. See
 "Claude Code Projects" below for the install, activation and log-route
 consequences.
 
+**A grant names a path; it does not create one.** Under a write-allowlist
+sandbox (Claude Code's Bash sandbox with `sandbox.filesystem.allowWrite`,
+or any harness that mounts only allowlisted paths writable), an
+allowlisted path can be mounted writable only if it already exists, and
+when its parent is outside the allowlist nothing inside the sandbox can
+create it: the first `mkdir -p` of the log fails with `Read-only file
+system` although the grant is present and correct (observed: a user-scope
+workspace under `~/.claude`, `skill-observations` and `skill-updates` both
+allowlisted, creation refused until a setup script run outside the
+sandbox made the two directories). In such a harness the grant and the
+path's existence are two install preconditions: create the workspace
+root's `skill-observations/` and the staging root `skill-updates/` at
+install time, from outside the sandbox — by the user or an install step —
+and only then rely on the session to create everything below them. The
+folder picker and the one-retry rule for a failed write do not help here:
+every interface inside the same sandbox sees the same read-only mount.
+The diagnosis at the moment of failure is in `observation-log.md`
+("Workspace creation").
+
 **Config detection (once per session):** with filesystem access, check the
 workspace root's CLAUDE.md (or equivalent) for a task-observer activation
 instruction — suggest adding it if absent. **Suggest; do not create.** If
