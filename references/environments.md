@@ -1196,7 +1196,10 @@ file is missing, the install is
 incomplete: proceed using the rules in `SKILL.md`, tell the user which
 files are missing, and point them to the full bundle at the canonical
 source (for the published version, the repository named in the attribution
-block).
+block). `SKILL.md` states the same rule ("Reference files"), because this
+file is one of the ones that can be missing: an upload path that keeps only
+`SKILL.md` produces exactly that install, and a rule kept only here would
+never be read in it.
 
 ## Compaction behaviour
 

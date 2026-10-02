@@ -10,7 +10,7 @@ The rest of this user guide focusses on Claude and specifically Claude Cowork, b
 
 ## Where the skill runs
 
-The skill is a multi-file bundle: `SKILL.md`, a `references/` folder that is loaded on demand, and a `scripts/` folder with two small helpers (the pre-3.0 log migration and the bundle validation gate). To install it, put all three into one folder, zip that folder, and upload it via Settings → Customize in your Claude account. Uploading the bare SKILL.md alone results in a degraded install — the skill still works, but will tell you which files are missing, and the automatic upgrade from a pre-3.0 log won't run without `scripts/` (see the Installation section of the readme for other environments).
+The skill is a multi-file bundle: `SKILL.md`, a `references/` folder that is loaded on demand, and a `scripts/` folder with three small helpers (the pre-3.0 log migration, the observation-file creator and the bundle validation gate). To install it, put all three into one folder, zip that folder, and upload it via Settings → Customize in your Claude account. Uploading the bare SKILL.md alone results in a degraded install — the skill still works, but will tell you which files are missing, and the automatic upgrade from a pre-3.0 log won't run without `scripts/` (see the Installation section of the readme for other environments).
 
 Once you've uploaded the skill, it's available in all chats (web interface, mobile app, desktop app) and also in the Cowork and Code tabs of the desktop app. Its full potential can be exploited in Cowork tasks and Code sessions.
 

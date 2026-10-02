@@ -65,26 +65,26 @@ incidental, not a promise about the rest.
 
 ## Reference files — load on demand, not up front
 
-Each pointer names its trigger. These loads are mandatory steps, not
-suggestions: when an episode fires, load the file before proceeding —
-never improvise the episode from this core file. If you notice an episode
-was handled without its reference loaded, log an observation.
+Each pointer names its trigger. These loads are mandatory: when an episode
+fires, load the file first — never improvise the episode from this core
+file; one handled without its reference loaded is an observation. **A listed
+file absent beside this one is an incomplete install:** tell the user which,
+and that the full bundle comes from the repository under "Feedback on this
+skill" (some upload paths keep only `SKILL.md`); its episodes do not run.
 
 - `references/weekly-review.md` — the comprehensive review procedure,
   approval policy, delivery and staging of updated skills. **Load when a
   review triggers or the user asks for one.**
-- `references/skill-authoring.md` — taxonomy in full, structure defaults,
-  licensing, attribution, confidentiality layers, live-file editing and
-  relocation-verification rules. **Load before creating or editing any
-  skill.**
+- `references/skill-authoring.md` — taxonomy, structure, licensing,
+  attribution, confidentiality layers, live-file editing, relocation checks.
+  **Load before creating or editing any skill.**
 - `references/observation-log.md` — storage layout, frontmatter fields,
   helper snippets, archival details, and the reasoning behind the rules.
   **Load when setting up the log for the first time, when archiving, when
   an id or frontmatter looks wrong, or before changing how anything reads
   the log** — and wherever a pointer below names it.
-- `references/signals.md` — the full catalogue of what is and isn't worth
-  logging. **Load when unsure whether something is an observation, or when
-  sorting many candidates.**
+- `references/signals.md` — what is and isn't worth logging. **Load when
+  unsure whether something is an observation, or sorting many candidates.**
 - `references/environments.md` — activation and config setup, compaction
   behaviour, bundle manifest, handoff-doc mode for storage-less
   environments. **Load for setup questions, after a compaction or resume
