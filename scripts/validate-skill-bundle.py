@@ -83,6 +83,15 @@ CORE_CEILING_KEY = "core_max_lines"
 CEILING_SLACK_TOLERANCE = 3
 TARGET_CORE_LINES = 500
 PATH_RE = re.compile(r"`((?:references|scripts|assets)/[^`\s*?]+\.[A-Za-z0-9]+)`")
+# A path the agent EXECUTES rarely fills a whole backtick span: it sits after
+# an interpreter, with arguments behind it, inline or in a fenced block, and
+# PATH_RE never extracts it. So code is also split into commands, and an
+# unqualified bundled path counts when the token before it is an interpreter.
+# A bare path with no interpreter stays unchecked, which keeps a quoted
+# example (`scripts/x/generate.py --logo ...`) out. Measured over 127 local
+# skills: 28 hits, 0 missing, no normalisation needed.
+CMD_PATH_RE = re.compile(r"(?:references|scripts|assets)/[^\s`'\"*?<>;|&]+\.[A-Za-z0-9]+")
+CMD_INTERP = {"python3", "python", "bash", "sh", "zsh", "node", "swift", "ruby", "perl", "run", "source"}
 BUILD_JUNK = {"__pycache__", ".DS_Store"}
 # Edit residue: strings that only ever enter a file through a failed
 # replacement, an unresolved template slot or an unfinished merge. The gate
@@ -451,7 +460,7 @@ def check_dir(skill_dir, fails):
     # cross-reference so the backtick no longer starts with the prefix is not.
     # The failure message names the convention, because a false FAIL here is
     # otherwise indistinguishable from a genuinely missing file.
-    for rel in sorted(set(PATH_RE.findall(text))):
+    for rel in sorted(set(PATH_RE.findall(text)) | command_paths(text)):
         if not (skill_dir / rel).is_file():
             fails.append(
                 f"cited path missing from staged set: {rel} "
@@ -510,6 +519,20 @@ def blank_fenced_code(text, fill=lambda h: re.sub(r"[^\n]", " ", h)):
     return "".join(out)
 
 
+def command_paths(text):
+    """Unqualified bundled paths in command position (see CMD_PATH_RE)."""
+    prose = blank_fenced_code(text)
+    chunks = [a for a, b in zip(text.splitlines(), prose.splitlines()) if a != b]
+    chunks += re.findall(r"`([^`\n]+)`", prose)
+    out = set()
+    for chunk in chunks:
+        for seg in re.split(r"&&|\|\||;|\|", chunk):
+            toks = seg.split()
+            out.update(t for i, t in enumerate(toks)
+                       if i and toks[i - 1] in CMD_INTERP and CMD_PATH_RE.fullmatch(t))
+    return out
+
+
 def residue_hits(rel, body):
     """Gate item 7 on one file: [(line, why, matched text)], first hit per rule.
 
@@ -549,6 +572,17 @@ RESIDUE_FIXTURES = [
 ]
 
 
+# (name, SKILL.md body, paths command_paths must return)
+COMMAND_PATH_FIXTURES = [
+    ("inline run command with flags", "Run `python3 scripts/check.py --strict in.json` first.\n", {"scripts/check.py"}),
+    ("fenced block, indented under a list item", "1. Build:\n\n   ```bash\n   cd x && python3 scripts/build.py --out dist\n   ```\n", {"scripts/build.py"}),
+    ("uv run", "`uv run scripts/a.py`\n", {"scripts/a.py"}),
+    ("quoted example with no interpreter is skipped", "e.g. `scripts/x/generate.py --logo l.png`\n", set()),
+    ("qualified path is skipped", "`python3 other-skill/scripts/a.py`\n", set()),
+    ("path outside code is skipped", "python3 scripts/a.py in prose\n", set()),
+]
+
+
 def selftest():
     bad = total = 0
     for name, text, must_fail in RESIDUE_FIXTURES:
@@ -560,6 +594,10 @@ def selftest():
         ok = bool(NAME_RE.match(fallback_name(f"name: {value}\n"))) == kebab
         bad += not ok; total += 1
         print(f"{'ok  ' if ok else 'FAIL'} fallback name: {value!r}")
+    for name, text, want in COMMAND_PATH_FIXTURES:
+        ok = command_paths(text) == want
+        bad += not ok; total += 1
+        print(f"{'ok  ' if ok else 'FAIL'} command path: {name}")
     print(f"selftest: {total - bad}/{total} passed")
     return 1 if bad else 0
 

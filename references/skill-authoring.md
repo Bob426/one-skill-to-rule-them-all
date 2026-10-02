@@ -795,7 +795,11 @@ re-check exists, do not record the value — record how to obtain it.
    has its file in the staged set — a path qualified with an owning skill
    name (`<skill-name>/references/<file>`) is a cross-reference, exempt by
    construction, and that is the convention for citing another skill's
-   file (weekly-review.md, Delivery); (2) the delivery artefact
+   file (weekly-review.md, Delivery). The validator extracts a path that
+   fills a whole backtick span, and also one in command position — after
+   an interpreter (`python3`, `bash`, `node`, `uv run` …) inside an inline
+   span or a fenced block, with arguments behind it — while a bare path
+   quoted as an example with no interpreter stays unchecked; (2) the delivery artefact
    is the `.skill` bundle — bare file links fail this gate even when all
    files are staged; (3) frontmatter constraints — measure the description
    (the FOLDED value, not the raw YAML block) and fail the delivery above
