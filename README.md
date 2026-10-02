@@ -45,7 +45,7 @@ During each session, it produces a structured observation log: what it noticed, 
 
 Some observations reveal patterns that aren't specific to one skill. These get captured as **cross-cutting principles** in a separate log — and new skills are automatically checked against them whenever they're created or updated. The more you use the system, the higher the quality floor across your whole skill library.
 
-The observer doesn't modify your skills directly. It produces recommendations that you review. You stay in control of what changes and when.
+The observer doesn't modify your installed skills. In an interactive review you approve each change; a scheduled review applies the observations that need no decision from you to staged copies only. Nothing goes live until you install the updated bundle, so you stay in control of what changes and when.
 
 ## How this differs from project memory
 
