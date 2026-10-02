@@ -223,16 +223,19 @@ header cannot leak into the next file under `find -exec … {} +`; it
 allows any number of spaces after the colon and an `&anchor` or `!tag`
 before the value, and it never treats a value opening with `{` or `#`
 as prose, which is what kept the template's own `reference:` comment
-line from being flagged. It is a floor, not a parse: flow collections
-are not inspected, and a plain value followed by a `# comment: x` still
-counts. Re-verify by running a real YAML parse over the
+line from being flagged. It is a floor, not a parse: a `[…]` list is
+checked only for a colon in an unquoted entry, a `{…}` mapping not at all,
+and a plain value followed by a `# comment: x` still counts. Re-verify by running a real YAML parse over the
 frontmatter of every file, not by re-reading the template.
 
 The typographic quote is the other common break, and it is quieter. A
 value that opens with „ or “ is a plain scalar: the quote characters
 become part of the text, an unquoted `: ` inside it still breaks the
 file, and nothing looks wrong in an editor. A value that opens with an
-ASCII `"` and closes with a typographic one never closes. Quote with the
+ASCII `"` and closes with a typographic one never closes. Inside an
+ASCII-quoted value, a „…" closed with an ASCII `"` ends the value at that
+`"`, and the rest of the line is text after a closing quote, which the
+scan flags. Quote with the
 ASCII pair; for a quotation inside the value use »…« or `\"`.
 
 ### A list entry holding a colon is not portable
