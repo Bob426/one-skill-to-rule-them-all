@@ -932,7 +932,8 @@ PR against a skill maintained by someone else — drafting that report IS the
 apply step for it, so the feedback pre-flight in
 `references/skill-authoring.md` runs here, before the draft is written:
 duplicate search across the upstream's issues and pull requests, the
-maintainer's preferred channel, upstream-HEAD verification. A pre-flight
+maintainer's preferred channel, upstream-HEAD verification; the pre-send
+gate and the claim check (same file) run on the finished draft. A pre-flight
 with no call site runs at send time, after the draft has been staged and
 listed as an outstanding item, which is when finding the duplicate costs
 the most. An empty duplicate search releases the draft only after a

@@ -488,6 +488,30 @@ the rule and leaked because of it. A human noticed about ten minutes after
 posting; the fix was delete and re-post, because an edit leaves the first
 version in the edit history.
 
+**The draft's claims about its own runs are checked against the record.**
+The pre-flight checks the reported problem at HEAD and the gate checks
+what must not be in the text; neither checks that what the report says
+was observed was observed, and the author is the reader least able to see
+the gap, because the draft reads as a faithful summary of work they
+remember. Before sending: number the draft's factual claims, its account
+of how its own evidence was produced included; check each against the
+recorded run or source — best by an agent that did not write the draft,
+told to refute and to return confirmed, refuted or unjudged per claim,
+with an unjudged claim counted as a failure; word each claim to the cases
+actually tested; paste output from a capture the drafter made, never
+relayed from another agent's report, and compare the written file with
+the capture; carry every precondition and the provenance ("reproduced in
+a test workspace") from the observation into the report; on an existing
+thread, read all of it first and say only what it lacks; and re-measure
+versions and other tickets' states at send time. This is Step 5's
+factual-claims rule (`weekly-review.md`) applied where text leaves the
+machine. Observed: five drafts from one session's evidence, after a
+clean pre-flight and identifier scan, had 3 of 28 numbered claims
+refuted, and further rounds on the corrected drafts refuted more — a
+result claimed for cases never measured, a dropped precondition, a
+constructed fixture told as "we hit", a generalisation over a family of
+code pages that two of the four tested contradicted.
+
 **A draft a person will paste is checked the way it will be consumed.**
 The pre-flight runs before a draft exists and the gate above reads the
 draft for what must not be in it; neither reads it as a paste source,
