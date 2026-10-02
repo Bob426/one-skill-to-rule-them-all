@@ -671,16 +671,16 @@ cross-cutting principles file (same reference).
 
 **Set the status in the same turn you act.** An observation acted on
 in-session must have its frontmatter updated — `status: actioned`,
-`resolved: YYYY-MM-DD`, `resolution: what was done` — before the turn
-ends. The work and the bookkeeping are two acts, and the second is the one
-that gets dropped; a stale `open` entry then invites redoing finished work
-over a section that has since moved on. The write is the enforcement,
-exactly as it is for logging. **"Acted on" includes a fix that lands as
-ordinary work** — the rule written into the instructions file, the code
-corrected — with the observation not in mind; and a later session finding
-the remedy already in place closes the entry the same way. Neither looks
-like acting on an observation, which is why both are missed (measured on
-one first review: 10 of 27 entries were already applied while `open`).
+`resolved: YYYY-MM-DD`, `resolution: what was done, and where it now lives`
+— before the turn ends. The work and the bookkeeping are two acts, and the
+second is the one that gets dropped; a stale `open` entry then invites
+redoing finished work over a section that has since moved on. The write is
+the enforcement, exactly as it is for logging. **"Acted on" includes a fix
+that lands as ordinary work** — the rule written into the instructions file,
+the code corrected — with the observation not in mind; and a later session
+finding the remedy already in place closes the entry the same way. Neither
+looks like acting on an observation, which is why both are missed (measured
+on one first review: 10 of 27 entries were already applied while `open`).
 
 **Acting on only a subset of a multi-skill observation's `skill:` list?**
 Neither plain move is honest — left `open`, the finished portion gets

@@ -153,7 +153,7 @@ remaining place where that reasoning had not been applied.
 | `date` | Date logged, `YYYY-MM-DD`. |
 | `session_context` | What was being worked on. |
 | `resolved` | Resolution date; set only when status is `actioned` or `declined`. Archival is gated on it. |
-| `resolution` | What was done, or why declined. |
+| `resolution` | What was done, or why declined. When the fix is a prescription (a rule, a check, a form to use), an `actioned` resolution names where it now lives — a file and section, a staged skill copy, or a registered backlog entry. If no such place can be named, the prescription has been described, not applied: leave the entry `open`, or resolve the part that landed and carry the rest in a carrier observation (below). A review's own resolution already names the staged copy (`weekly-review.md`, Step 6); this is the rule for a resolution set outside a review. |
 | `reference` | Optional path to saved session-local evidence. |
 | `commands_verified` | One clause per executable command the body quotes: `run`, with what it returned, or `NOT RUN` with why; the literal `none` where the body quotes no command. Blank on a body that quotes a command means the command was never run. See "Commands inside an observation" below. |
 | `skill_qualifiers` | Optional map: skill name → the section or part of that skill meant. |
