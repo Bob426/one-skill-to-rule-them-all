@@ -800,6 +800,15 @@ def check_bundle(path, fails):
 
 
 def main(argv):
+    # A console or pipe whose code page cannot encode a character this script
+    # prints (U+2014 under cp949 or cp932) would raise UnicodeEncodeError and
+    # exit 1 with no verdict, the code a failed gate uses. Replace instead.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(errors="replace")
+            except (ValueError, AttributeError):
+                pass
     if len(argv) < 2:
         print(__doc__); return 2
     if argv[1] == "--selftest":
