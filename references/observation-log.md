@@ -184,6 +184,12 @@ sat four days under `skills:`, with `status: OPEN` and no `type:`,
 parsed). The failure produces a smaller number, never an error, which is
 why a near-miss name is flagged rather than skipped wherever a check runs.
 
+**An entry is UTF-8 without a byte order mark.** Every header reader tests
+line 1 for `---`, and a BOM in front of it hides the header: the scan
+skips the entry with `parsed` one below `files`, and the archival sweep
+never moves it (`environments.md`, "Windows hosts: what reaches the shell
+and the file").
+
 ### Unquoted `: ` in a prose value — how far it drifts before anyone notices
 
 The core states the rule (quote every prose value). This is the measurement
