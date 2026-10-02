@@ -134,6 +134,30 @@ def folded_description(fm):
     return m.group(1).strip().strip('"\'') if m else ""
 
 
+def fallback_name(fm):
+    """`name` as a YAML parser reads it, for the no-PyYAML branch.
+
+    One layer of matching quotes is not part of the value (the template asks
+    for `name: "x"`), and neither is a trailing comment: PyYAML ends the
+    value at `#` after a closing quote, and at ` #` after a plain scalar.
+    Stripping quotes only when the line ENDS in the quote left
+    `name: 'x' # c` failing here while the parser passed it. A tab
+    before `#` is a scanner error to PyYAML, so it is left in and fails too.
+    """
+    raw = (re.search(r"(?m)^name:\s*(.+)$", fm) or [None, ""])[1].strip()
+    m = re.match(r"""^(["'])([^"'\\]*)\1 *(?:#.*)?$""", raw)
+    return m.group(2) if m else re.sub(r" +#.*$", "", raw)
+
+
+# (frontmatter `name:` value, kebab verdict the fallback must give) — each
+# pins the fallback to what PyYAML returns for the same line.
+FALLBACK_NAME_FIXTURES = [
+    ("x", True), ('"x"', True), ("'x'", True),
+    ("'x' # c", True), ('"x" # c', True), ("x # c", True), ("'x'#c", True),
+    ("x#c", False), ("'a #b' # c", False), ("x\t# c", False), ("'x'y", False),
+]
+
+
 def check_frontmatter_shape(fm, fails, yaml_available):
     """Structural checks that do not need PyYAML.
 
@@ -391,10 +415,7 @@ def check_dir(skill_dir, fails):
         # for `name: "x"`, a real parser never sees the quote characters as
         # part of the value, and .strip() removes whitespace, not quotes —
         # so the hardened fallback failed the bundle it ships inside.
-        raw = (re.search(r"(?m)^name:\s*(.+)$", fm) or [None, ""])[1].strip()
-        if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in "\"'":
-            raw = raw[1:-1]
-        data = {"name": raw, "description": folded_description(fm)}
+        data = {"name": fallback_name(fm), "description": folded_description(fm)}
     except Exception as e:  # yaml error
         # Name the cause the check can detect, not the first field it then
         # fails to find: an unquoted `: ` inside a description is the common
@@ -529,13 +550,17 @@ RESIDUE_FIXTURES = [
 
 
 def selftest():
-    bad = 0
+    bad = total = 0
     for name, text, must_fail in RESIDUE_FIXTURES:
         failed = bool(residue_hits(pathlib.Path("fixture.md"), text))
         ok = failed == must_fail
-        bad += not ok
+        bad += not ok; total += 1
         print(f"{'ok  ' if ok else 'FAIL'} {name}")
-    print(f"selftest: {len(RESIDUE_FIXTURES) - bad}/{len(RESIDUE_FIXTURES)} passed")
+    for value, kebab in FALLBACK_NAME_FIXTURES:
+        ok = bool(NAME_RE.match(fallback_name(f"name: {value}\n"))) == kebab
+        bad += not ok; total += 1
+        print(f"{'ok  ' if ok else 'FAIL'} fallback name: {value!r}")
+    print(f"selftest: {total - bad}/{total} passed")
     return 1 if bad else 0
 
 
