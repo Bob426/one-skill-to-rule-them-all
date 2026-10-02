@@ -936,7 +936,7 @@ The snippet leaves the derived number in `$next_id` and the target path in
 `$f`; append `printf '%04d\n' "$next_id"` if you also want the filename
 prefix echoed.
 
-**`scripts/new-observation.sh <slug> [workspace-root]` is this snippet as
+**`bash scripts/new-observation.sh <slug> [workspace-root]` is this snippet as
 one command.** It performs the same steps in the same order — sweep, id,
 prefix guard, noclobber create, floor write — takes the pinned workspace
 root as its second argument or from `TASK_OBSERVER_WORKSPACE`, refuses a

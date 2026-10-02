@@ -3,7 +3,7 @@
 # as one command that cannot be split.
 #
 # Usage:
-#   scripts/new-observation.sh <slug> [workspace-root]
+#   bash scripts/new-observation.sh <slug> [workspace-root]
 #
 #   <slug>            kebab-case, no id prefix, no extension ("short-slug")
 #   [workspace-root]  the pinned absolute workspace path — the directory that
