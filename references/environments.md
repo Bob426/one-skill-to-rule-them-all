@@ -100,6 +100,16 @@ uninformed decisions past the review gate, and approval locks them in.
 Load skills before exploring, researching or drafting the plan: both,
 skill first.
 
+**The block has a per-session cost, paid knowingly.** Every session it
+covers loads SKILL.md in full (bounded by `core_max_lines` in its
+frontmatter; the references load on demand) and runs the Session Start
+Protocol, whether or not the session logs anything. Narrowing that scope
+is the adopter's trade, made in their own config, never the agent's
+judgement of an opening message. A narrowed rule carries its re-trigger
+or it loses coverage exactly where coverage matters: *if a skipped session
+turns into multi-step work, or the user corrects how you work, invoke the
+skill at that moment, before the next write.*
+
 **Select on the decision, not on the artefact.** Selection and loading are
 separate steps, and the selection step fails in its own way: it runs
 against what the user handed over — files to read, a link, a screenshot —
