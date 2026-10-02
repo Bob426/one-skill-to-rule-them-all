@@ -506,8 +506,9 @@ real corpus is unmeasured, so record three numbers the first time it runs
 over a live log — hits, true defects among them, and how many were
 normalised — and decide from those whether it stays a report or becomes
 a gate (`skill-authoring.md`, "a recommended check carries three
-measured numbers"). A header with no closing `---` is not reported here;
-the scan's `parsed` count is the instrument for that. Fix a hit the way
+measured numbers"). A header with no closing `---` is not reported here,
+and the scan's `parsed` count does not see it either: it counts an opening
+`---`, not a closed header. Fix a hit the way
 the duplicate-id check fixes a renumber: one field in one file, with the
 filename left alone unless the id is the field at fault.
 
