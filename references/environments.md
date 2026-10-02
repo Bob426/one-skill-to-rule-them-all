@@ -54,8 +54,8 @@ knowingly; do not assume any of the middle ones is a guarantee.
    Cowork, the personal-preferences field in the app settings; other
    agents' equivalents). This is the right home for a one-line
    probe-then-request trigger — "the session's first tool call is one
-   batched call that contains an `ls` of the workspace path, with any
-   session-start skill loads in that same batch; if the `ls` fails, call
+   batched call that contains an `ls` of the workspace path AND the loads
+   of <the session-start skills, by name: task-observer, …>; if the `ls` fails, call
    the folder-picker tool; never state whether the folder is connected
    without that probe" (why the wording is about the call's content, not
    its order: "The probe rides inside the first batched call" below) —
@@ -156,6 +156,14 @@ action leaves a durable change outside the observation log. Run this at every sk
 in one session. The session-start scan does not cover it: that is a
 frontmatter sweep over every observation at session start, this is a
 body-level lookup for one skill at the moment its rules are applied.
+
+The converse holds too: the grep, and any checkpoint line recording the
+load, run only in the same batch as the Skill invocation, and take the
+skill name from a load that has actually happened — never from a list of
+skills you built to load. A checkpoint line written without the load is a
+false record. Before writing to any file a skill reads at run time (a
+state file), load that skill: a state file that describes itself is not a
+substitute for the skill that owns it.
 
 The task-observer workspace for this project is:
   [ABSOLUTE PATH]
@@ -580,7 +588,7 @@ block, which is where the line
 
 > then read the workspace config and follow it before any other work
 
-goes. See the activation tiers above: that channel is tier 0, and the step-1
+goes. See the activation tiers above: that channel is tier 2 (user-level preferences), and the step-1
 guard is the backup for turns 2+ and for sessions where the skill happens to
 be loaded directly.
 
@@ -625,6 +633,20 @@ after the fact from the transcript (an ordering rule between two "first"
 actions is not). SKILL.md step 1 states it that way; the tier-2 preferences
 line above is worded to match; the activation block's "before the first
 tool call" is satisfied by the load riding *in* that call.
+
+**The pre-skill tier's line names the complete batch, not only the
+probe.** Whatever the harness reads before any skill — Cowork's
+user-preferences block, a Claude Code user-level (global) CLAUDE.md, a
+session-start hook's injected text — carries the whole first batch: the
+workspace probe AND the session-start skill loads, named, in one batched
+call; the tier-2 line above is the template. A rule that must fire on the
+first tool call cannot live only inside a skill, because on turn 1 that
+skill has not been read yet; the skill-side copy (SKILL.md step 1) is the
+backup guard for turn 2. The failure shape: a line naming only the probe
+fires the probe and leaves the loads to a project config that arrives late
+or intermittently, so the first batch carries the probe alone and the
+skills load a batch later. The review's activation regression pass checks
+for it (`weekly-review.md`, Step 1).
 
 ### Install-layout hazards — three ways a skill silently stops existing
 
@@ -874,6 +896,20 @@ cleanup, keep-two pruning), or run git in the shared folder need a local
 session — treat that as a one-line precondition on those steps, and when
 reporting a mode-conditional limit, name the mode and the switch in the
 same breath.
+
+**A cloud session bridged to the user's machine writes observations
+through the device shell, at write time.** In a bridged session the agent
+runs in a container while the log lives on the device, reached through a
+remote shell (`device_bash`) and a file-commit tool
+(`device_commit_files`). An observation is created on the device by that
+shell running the id snippet (SKILL.md, How to Log) — or
+`scripts/new-observation.sh`, where the script is reachable on the device
+— at the moment of writing, and its body goes into the created path
+through the same shell with a quoted heredoc. It is never composed in the
+container and committed afterwards. The failure shape: a committed file
+carries an id derived from a listing taken earlier, and the prefix guard
+never ran because it lives in the command the commit bypassed; the lagging
+`.id-floor` appears first and the duplicate id at the next review.
 
 | Capability | Claude Cowork | Claude Code | Web chat / no filesystem |
 |---|---|---|---|

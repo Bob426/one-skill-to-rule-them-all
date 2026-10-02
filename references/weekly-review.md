@@ -2,11 +2,13 @@
 
 Cross-checks all OPEN observations against all skills, propagates
 cross-cutting principles, and applies improvements that don't need user
-input. Two modes:
+input to staged copies — never to live skills. Two modes:
 
 - **Scheduled autonomous review (preferred):** a recurring task (e.g.
   Mon/Wed/Fri mornings) via the platform's scheduler. Runs without the user
-  present and applies non-escalated observations autonomously.
+  present and applies non-escalated observations to staged copies only;
+  nothing goes live until the user installs the bundle (Approval policy,
+  Delivering updated skills).
 - **In-session 7-day fallback:** pending at session start when BOTH are
   true: no scheduled review is registered (or none has written
   `last-review-date.txt` in 7+ days — a scheduler's "succeeded" says the
@@ -347,7 +349,30 @@ re-suggest the block; record the tiers found in
 `skill-observations/activation-tiers.txt` so the next review has a
 baseline to compare against — in an aggregate run over several logs,
 one such file per participating workspace, describing that workspace's
-own config, never a single copy at the anchor workspace. Then archive observation files resolved in
+own config, never a single copy at the anchor workspace.
+
+Two more reads belong to the same pass. **Does the pre-skill tier's line
+name the batch content, or only the probe?** Where a tier read before any
+skill is in place — a preferences block, a user-level instruction file, a
+session-start hook's injected text — its line must name the complete
+first batch: the workspace probe AND the session-start skill loads, in one
+batched call (`references/environments.md`, "The probe rides inside the
+first batched call"). Flag a line that names only the probe; it fires the
+probe and leaves the loads to a config that may arrive late. **Does a
+scheduled prompt restate the procedure?** Read the registered review
+prompt where the platform exposes it (the scheduler's list or read call),
+else `skill-observations/scheduled-task-draft.md`, and flag every line
+that restates a review step, a staging path, a status format or an
+escalation criterion. The prompt names the skill, the mode, the workspace
+and the offline policy, plus the probe-then-invoke line and the started
+marker `references/environments.md` requires of every scheduled prompt —
+nothing else. The failure shape: a stored prompt is read by every run and
+edited by nobody, so a restated step drifts behind this file and the run
+follows the copy. Record the verdict in `activation-tiers.txt` beside the
+scheduled-task tier (`prompt restates: none`, or the flagged lines), and
+run the same read over every other scheduled prompt that invokes a skill.
+
+Then archive observation files resolved in
 *previous* sessions — with the sweep as shipped (the sweep block of the id
 snippet, run on its own; see Archival on Write in SKILL.md), never an
 improvised bulk move; where one is unavoidable, read the set once and
@@ -408,7 +433,15 @@ merged count against a file count.
 d="[ABSOLUTE PATH]/skill-observations/observation-log"
 find "$d" "$d/archive" -maxdepth 1 -name '*.md' | sed 's|.*/||' \
   | grep -oE '^[0-9]+' | sed 's/^0*\([0-9]\)/\1/' | sort -n | uniq -d
+top=$(find "$d" "$d/archive" -maxdepth 1 -name '[0-9]*.md' | sed 's|.*/||' | grep -oE '^[0-9]+' | sort -n | tail -1); floor=$(sed '1!d; s/[^0-9]//g' "$d/archive/.id-floor" 2>/dev/null); [ "$((10#${floor:-0}))" -ge "$((10#${top:-0}))" ] || echo "FLOOR LAGS — .id-floor ${floor:-absent} < highest prefix $top: a writer bypassed the snippet"
 ```
+
+The last line asserts `.id-floor >= highest prefix` across active and
+archive. Every run of the snippet or `scripts/new-observation.sh` leaves
+the floor at the id it issued, so a lagging floor means some writer
+created files without running either — the earlier and cheaper signal of
+the bypass, visible before any collision (`observation-log.md`, "Floor
+staleness").
 
 `grep -oE '^[0-9]+'`, not `sed 's/-.*//'`: the archive may hold legacy
 `log-YYYY-MM-DD.md` files from a pre-3.0 migration, and stripping at the
@@ -424,6 +457,11 @@ entry (by `date`, then by the lower `.id-floor` era), renumber the later
 one to a fresh id from the snippet, update its filename and its `id:`
 field together, and note the renumber in its body so a citation of the old
 number can still be traced. Then re-run the check until it prints nothing.
+For each collision, and for the files above a lagging floor, record the
+writing sessions — each file's `session_context` and `date` — in the Step 8
+summary: the pair traces the bypass to an environment or write path, which
+is where the fix goes, while a bare count blames a rule every writer that
+ran the snippet obeyed.
 
 **Per-entry header conformance — a count, not a gate.** The scan's
 suspect count catches YAML that will not parse; it cannot see a header
@@ -540,6 +578,30 @@ legitimately moves on, so a bare "differs" is not a verdict:
   merge, assert that every heading from BOTH inputs is present in the
   result and none is duplicated; the merged copy then takes (c)'s
   bookkeeping (surface it, list its observations, count its reviews).
+
+**Compare with the installer's frontmatter quoting normalised.** The
+installer writes the frontmatter `name:` line back quoted on some installs
+and unquoted on others, and on some skills re-quotes `description:` too, so
+a raw `diff -rq` reports a freshly installed copy as differing. Normalise
+both sides before classifying — frontmatter only, `name:` and
+`description:` only: surrounding double quotes stripped with `\"` and `\\`
+resolved, surrounding single quotes stripped with `''` resolved; every
+other file is compared literally:
+
+```bash
+fm=$'1,/^---$/{/^(name|description):[[:space:]]*".*"[[:space:]]*$/{s/:[[:space:]]*"/: /;s/"[[:space:]]*$//;s/\\\\"/"/g;s/\\\\\\\\/\\\\/g;};/^(name|description):[[:space:]]*\'.*\'[[:space:]]*$/{s/:[[:space:]]*\'/: /;s/\'[[:space:]]*$//;s/\'\'/\'/g;};}'
+diff <(sed -E "$fm" "$live/SKILL.md") <(sed -E "$fm" "$staged/SKILL.md") && diff -rq -x SKILL.md "$live" "$staged"   # bash; both silent = (a)
+```
+
+This skill owns that command: any other skill that compares installed
+against staged copies quotes it verbatim and names this section as its
+owner, so the shape cannot drift twice. A multi-line description the
+installer re-wrapped is not normalised and surfaces. A diff consisting
+only of quoting on those two lines is state (a), never a reason to
+re-stage. Any other change on those lines still surfaces; waving the known
+diff through by eye is the habit that would hide it. The validator's pack
+step emits the quoted `name:`, so most installs come back byte-identical and
+the normalisation is the backstop.
 
 **(b) against (c) is decided per differing hunk, never per file.**
 `diff -rq` settles only (a). For every line present only in the staged
@@ -743,8 +805,8 @@ Link the full list and say how many decisions remain. Group duplicates
 and exclude already-fixed items before choosing the three. Await
 approval: the user may approve the three, the whole list in the record
 in one step, or a selection from it; a short list does not authorize the
-rest of the backlog. Autonomous: apply the approval policy above and
-continue, and save the same record.
+rest of the backlog. Autonomous: apply the approval policy above to
+staged copies and continue, and save the same record.
 
 **Cluster by decision BEFORE the escalation list is written.** An
 append-only log accumulates convergent entries by construction: the same
@@ -851,7 +913,7 @@ A command the entry quotes is a claim of this kind; its `commands_verified:`
 clause (`observation-log.md`) says whether anyone has run it.
 
 Where an approved item's destination is an upstream report — an issue or
-PR against a skill someone else maintains — drafting that report IS the
+PR against a skill maintained by someone else — drafting that report IS the
 apply step for it, so the feedback pre-flight in
 `references/skill-authoring.md` runs here, before the draft is written:
 duplicate search across the upstream's issues and pull requests, the
@@ -935,7 +997,12 @@ the summary carries.
    counts, not the open ones; months or years in use = from the date of
    the earliest observation in the log (the oldest file in
    `observation-log/archive/`), not from the install date or the repo's
-   first commit — and update them in the same staging. Carry the new
+   first commit; installs = the figure a skills directory's listing
+   reports, refreshed in every release together with the other README
+   figures, and stated as a lower bound where the directory's install
+   telemetry is opt-out — and update them in the same staging. An install
+   line names the installer tool, not the site that counts its installs.
+   Carry the new
    values into the review summary so the maintainer sees what changed.
    Anything of the same class the maintainer alone would notice (a
    "recommended by" list, a supported-platform list) is checked in the
@@ -959,7 +1026,14 @@ restructures. Where the skill carries a `version:` in its frontmatter,
 the bump goes into the staged frontmatter; where the version lives only
 in the repo's manifest (a `plugin.json` or equivalent), the review
 records the intended bump in the staging manifest entry (`PENDING.md`)
-so the publishing sync applies it. Either way the manifest entry states
+so the publishing sync applies it. Where a published skill carries no
+`version:` and no repo manifest holds one, the review adds the field and
+the bump in the same staging — `1.0.0`, or the next minor above what the
+README or the release history implies — never deferring either to the
+publishing run, which cannot bump a version nobody has set: the failure
+shape is a hold that tests "version unchanged", finds it absent both
+times, and stalls the sync while each side expects the other to pick the
+number. Either way the manifest entry states
 the bump. Whoever changes the content owns the bump; the publisher only
 checks that it happened — the sync may not edit skill content, and a
 review that grows a published skill by a hundred lines at an unchanged
@@ -1199,10 +1273,17 @@ open-source skills, the rule **never introduce `: ` into an unquoted
 frontmatter value** (a subagent extending a `description:` is the
 common way a staged skill's frontmatter stops parsing — see
 `references/skill-authoring.md`, pre-delivery gate item 4), the rule
-that any Python check run inside the staged tree runs with
-`PYTHONDONTWRITEBYTECODE=1` (a `py_compile` there leaves a `__pycache__/`
-the pre-delivery gate rejects, on a mount that cannot unlink it without
-the delete grant), whether the pass is a content pass or a reformat —
+that no Python check leaves bytecode in the staged tree (a `__pycache__/`
+there is one the pre-delivery gate rejects, on a mount that cannot unlink it
+without the delete grant): a compile check runs as
+`PYTHONPYCACHEPREFIX=<scratch dir outside the staged tree> python3 -m py_compile <file>`
+(or `compile()` via `python3 -c`), because `py_compile` writes its `.pyc`
+whatever `PYTHONDONTWRITEBYTECODE` says — that variable governs only the
+import machinery — so `PYTHONDONTWRITEBYTECODE=1` is for scripts that are
+executed, and the Delivery sweep stays the backstop; an explicit delete
+scope — the subagent may remove only files it created, by path, under its
+own directories, and never runs a recursive delete on a directory it did
+not create; whether the pass is a content pass or a reformat —
 never both in one edit, and a snapshot of the staged directory taken
 before it (Delivery) — and an explicit rule that subagents do not change
 any observation's status and do not write observations: a finding worth
@@ -1211,7 +1292,20 @@ because two writers watching one task from two vantages log one finding
 twice, and merging two entries about one fact is not the renumbering the
 duplicate-id check performs (Cross-slice duplicates, below). Reserve
 status marking, archival and observation writes for the parent
-session. The
+session. Before the first subagent returns, the parent snapshots the
+output tree (a listing with sizes), so a sibling's work deleted by
+another writer is detectable rather than silently absent from the merge;
+where the harness offers per-agent sandboxes or worktrees, parallel
+writers use them. **A phase that will write is briefed as a write phase from the
+start**, with the user's authorisation for the writes quoted verbatim in
+the brief — one brief covering triage and apply, or a fresh subagent for
+the apply phase — never a read-only brief later widened by a message from
+the parent. The failure shape: a permission classifier reads an
+agent-to-agent widening of a brief that forbade writes as laundering and
+refuses the write, and the same edit retried by another agent is refused
+as a bypass. Where the user's instruction is outcome-level ("include
+everything that needs no testing"), get their explicit go for the writes
+before fanning out, and quote it in every brief. The
 parent runs `scripts/validate-skill-bundle.py` on EVERY staged skill
 BEFORE any status bookkeeping — a subagent's "done" is a claim about its
 own edits, and the validator is the one check that sees the file the
@@ -1368,7 +1462,15 @@ template below. In chat, report what changed and its verification, followed
 by at most three remaining next steps in the Step 3 format. Link the record
 for the full accounting. Distinguish proposed, staged and installed changes;
 an observation count alone is not an outcome. Records are kept: no step
-prunes `reviews/`, and old ones are the user's to delete. The template:
+prunes `reviews/`, and old ones are the user's to delete.
+
+Step 8 ends with the line **"N bundles staged, N bundles presented"**, and
+the run does not finish while the two numbers differ. Both are measured:
+staged from the bundles this run packed, presented from the delivered-file
+list the presentation call returns (where the environment has no such
+call, from the staged paths listed in chat) — never from memory of having
+presented them. A difference is closed by presenting the missing bundles
+in one call and counting again. The template:
 
 ```markdown
 ## Weekly Skill Review Complete — [date]
@@ -1403,15 +1505,22 @@ whose condition has been met and was returned to the queue this review]
 [from the Step 6 re-scan: #id — title — folded into [skill] / left OPEN
 for the next review; or "none" — the line is never omitted]
 
+### Log integrity
+[duplicate ids renumbered and any floor lag (Step 1), each with the
+writing sessions' session_context and date; or "none"]
+
 ### Skipped (needs manual review)
 [items with reasons]
+
+[N] bundles staged, [N] bundles presented
 ```
 
 **Interactive mode only:** wait for the user to acknowledge before other
 work. **In scheduled autonomous mode, do not wait** — there is no user to
 acknowledge, and this is the step a scheduled run must always reach, since
 it is where the run stages its output and records its summary. Finish after
-staging the updated skills and recording the summary. A step that blocks on
+staging the updated skills, recording the summary and reconciling the
+staged/presented count. A step that blocks on
 an event that cannot occur turns the run's one deliverable into a hang.
 
 ## Constraints
@@ -1493,7 +1602,10 @@ cited as `<skill-name>/references/<file>` and passes untouched; that
 qualification is the convention, and re-wording a genuine cross-reference
 until the backtick no longer starts with the prefix is disguising a
 reference to satisfy a linter, not fixing a defect; (2) the artefact presented is the
-bundle — bare file links fail this gate; (3) measure each staged skill's frontmatter
+bundle — bare file links fail this gate — and every staged bundle is
+presented (Step 8's staged/presented count); the number of cards is never
+a reason to present fewer, since one call carries them all and each card
+is an install decision the user makes either way; (3) measure each staged skill's frontmatter
 description (the folded value, not the raw YAML block) and fail the
 delivery above 1024 characters, with a soft warning above ~900 —
 measure every skill in the set, not just the one that failed; (4) `name`
@@ -1503,7 +1615,8 @@ bundle's member paths use `/`, checked on raw bytes (Windows packers write
 — a second `---` block or stray `name:`/`description:` lines directly
 after the first is a duplicated header that every field check passes by
 construction; (7) no edit residue in any text file of the bundle,
-outside code: a literal regex backreference (`\1`) on its own line or in
+outside code (fenced blocks at any indentation, including one nested
+under a list item, and inline spans): a literal regex backreference (`\1`) on its own line or in
 prose, merge-conflict markers, unresolved `{{slot}}` placeholders — the
 gate checks the form of a delivery, and this is the one content assertion,
 because a failed replacement once passed apply, gate and install as a
@@ -1513,7 +1626,12 @@ first line is the marker `<!-- template: slots intentional -->`: in a
 reference file that IS a template for a delegate author, the slots are
 the deliverable, not residue. Every other residue rule and every other
 gate item still runs on such a file, so the exemption never becomes the
-hand-zip that skips the checks nobody was questioning.
+hand-zip that skips the checks nobody was questioning. One further item is
+a named human read, not an assertion: for a skill that is published or
+queued for publication, confidentiality layer 9 in
+`references/skill-authoring.md` over every section added since the last
+published tree — justifications stated as failure shapes, examples across
+verticals.
 `scripts/validate-skill-bundle.py`
 asserts all seven and packs a well-formed bundle — run it where Python is
 available. It also enforces each skill's OWN declared core ceiling
@@ -1521,7 +1639,8 @@ available. It also enforces each skill's OWN declared core ceiling
 `references/skill-authoring.md`, Lean Content), and **the pack step is
 never bypassed for a ceiling failure**: a skill that fails its own declared
 ceiling is trimmed back under it, moving content to a reference file, and
-re-validated; a skill with no declared ceiling cannot fail it and is only
+re-validated — or, where the ceiling sits more than the tolerance above a
+trimmed core, the ceiling is lowered to the count; a skill with no declared ceiling cannot fail it and is only
 reported. Hand-packing a bundle to skirt the validator is the exact failure
 the gate exists to prevent (observed: three skills packed by hand with a
 mirror of `pack()` when a ceiling that was then a constant in the script
@@ -1544,7 +1663,8 @@ originally counted rounds regardless, so a user who received three staged
 updates for one skill and installed none of them — a plausible run when
 staging keeps happening and installation waits — lost the oldest, and the
 reviewable work in it, to a rule that reads as tidying. Classify each
-copy with the reconciliation gate's `diff -rq` first: prune only copies
+copy with the reconciliation gate's comparison first ("Compare with the
+installer's frontmatter quoting normalised" — a copy differing only in that quoting is (a)): prune only copies
 that came back **(a) identical** or **(b) superseded**; a copy in state
 (c) or (d) is uninstalled work and is kept whatever its age, and named
 in the summary so it does not accumulate invisibly. For the prunable

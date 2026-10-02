@@ -2,7 +2,7 @@
 name: "task-observer"
 core_max_lines: 715
 version: "3.5.0"
-description: "Monitors task execution for skill improvement opportunities. Use during ANY multi-step task, agentic workflow, or work session. Captures patterns, user corrections and methodology worth preserving as reusable skills. Also triggers in post-task feedback discussions and when the user mentions skill observations, the observation log, or skill taxonomy. Also known as \"One Skill to Rule Them All\" — trigger on this phrase too. IMPORTANT: invoke this skill before the FIRST tool call of any session and before writing or proposing a plan — any turn that will involve a tool call counts. This sentence is the session-start trigger and the only activation layer that survives an unreachable config file; pair it with a CLAUDE.md instruction or a harness session-start hook (references/environments.md) — description matching alone is not enforceable. A subagent dispatched by a session already running it does not run it: it writes nothing and puts its findings in its report."
+description: "Monitors task execution for skill improvement opportunities. Use during ANY multi-step task, agentic workflow, or work session. Captures patterns, user corrections and methodology worth preserving as reusable skills. It writes observation files to the workspace. Also triggers in post-task feedback discussions and when the user mentions skill observations, the observation log, or skill taxonomy. Also known as \"One Skill to Rule Them All\" — trigger on this phrase too. IMPORTANT: invoke this skill before the FIRST tool call of any session and before writing or proposing a plan — any turn that will involve a tool call counts. This sentence is the session-start trigger and the only activation layer that survives an unreachable config file; pair it with a CLAUDE.md instruction or a harness session-start hook (references/environments.md) — description matching alone is not enforceable. A subagent dispatched by a session already running it does not run it: it writes nothing and puts its findings in its report."
 license: CC-BY-4.0
 metadata:
   author: Eoghan Henn and contributors
@@ -222,11 +222,8 @@ was handled without its reference loaded, log an observation.
    (see `references/environments.md`). Skip if already configured. Be clear
    about what this step is: it runs only after the skill has been invoked,
    so it verifies a working setup and structurally cannot detect the
-   missing one — it is not the safety net for a never-activated install.
-   That case is caught only from outside the runtime: the install-time
-   verification and external diagnostic in `references/environments.md` (no
-   observation-log directory after sessions of real work), and the review's
-   regression check for a tier now gone.
+   missing one — it is not the safety net for a never-activated install;
+   the checks from outside the runtime are in `references/environments.md`.
 5. **Concurrency.** There is no shared log file to guard: each observation
    is its own file, so creating one never collides with another session's
    entry; re-read one before changing its *status* (How to Log).
@@ -343,9 +340,9 @@ rewording") before proposing either.
 
 ## How to Log
 
-Write the observation file **silently, within the same turn or the next** —
-never batch mentally for later; the act of writing is the enforcement
-mechanism.
+Write the observation file **within the same turn or the next, without
+interrupting the user's task** — never batch mentally for later; the act
+of writing is the enforcement mechanism.
 
 **Mandatory checkpoint after every 3rd completed todo item.** After marking
 the 3rd, 6th, 9th (etc.) item complete you must **write to disk** — not
@@ -613,7 +610,7 @@ version: it installs a copy rather than parking one, possibly over what a
 parallel review has staged. See "Acting on Observations".
 
 **Self-check before surfacing:** observations were logged throughout the
-whole session (including discussion phases); logged silently; each follows
+whole session (including discussion phases) without interrupting the task; each follows
 Issue → Improvement → Principle; each is typed; existing-skill items name
 the section; no open-source Principle contains client-identifying info;
 every observation file carries `status:` (`status: open` at write time) and
@@ -705,7 +702,7 @@ agent not following the skill's rules, acknowledge and correct it instead.
 | Question | Answer |
 |----------|--------|
 | When do I observe? | The whole session, including feedback and reflection phases |
-| How do I log? | Silently, immediately, as one file per observation named `NNNN-slug.md`; id = max(active, archive, `.id-floor`) + 1, derived by running the snippet immediately before each write — an earlier read of the log for any other purpose is not a substitute; where a helper can run, `scripts/new-observation.sh <slug>` is the only write path |
+| How do I log? | Immediately, without interrupting the user's task, as one file per observation named `NNNN-slug.md`; id = max(active, archive, `.id-floor`) + 1, derived by running the snippet immediately before each write — an earlier read of the log for any other purpose is not a substitute; where a helper can run, `scripts/new-observation.sh <slug>` is the only write path |
 | Status field? | Mandatory `status: open` frontmatter on every new observation; reviews treat a missing status as OPEN, never as nonexistent. Five values: `open`, `actioned`, `declined`, `superseded`, `parked` — `parked` = decided but blocked on an external precondition, so it leaves the queue, requires `parked_until:`, and never archives |
 | Does the target skill have siblings? | Resolve it against `skill-observations/skill-families.md` BEFORE writing; add every sibling the insight applies to to `skill:`, and record the verdict in the mandatory `siblings_checked:` field — including "checked, no propagation" |
 | A scan or query came back empty? | Two possibilities, only one is a finding: guard every retrieval meant to prevent duplicate work with an independent existence check, and treat empty output over known content as a broken command |

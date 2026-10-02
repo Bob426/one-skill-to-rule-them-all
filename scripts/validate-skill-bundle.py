@@ -11,9 +11,12 @@ Usage
 -----
   python3 validate-skill-bundle.py <staged-skill-dir> [--bundle file.skill] [--pack out.skill]
   python3 validate-skill-bundle.py --repo-only <repo-dir>
+  python3 validate-skill-bundle.py --selftest   # residue-check fixtures; exit 1 on any mismatch
 
   --pack        writes a well-formed bundle (POSIX separators on any platform)
-                after the directory checks pass, then validates it.
+                after the directory checks pass, then validates it. An
+                unquoted frontmatter `name:` is rewritten to the quoted form
+                in the staged SKILL.md first, so the packed copy carries it.
   --repo        additionally check the repo's manifests against the skill.
   --repo-only   check ONLY the repo's manifests, skipping the skill checks.
                 Also runs the markdown shape check over the repo-root .md
@@ -69,8 +72,15 @@ SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 # neither has not opted in: the count is reported and nothing is gated. This
 # script ships inside task-observer but is run against every skill in a
 # library, and a constant that describes one skill must never bound another.
+#
+# The ceiling also FOLLOWS the core down. A check that only blocks growth
+# leaves every trim as open headroom, and the next ordinary additions spend it
+# without anyone deciding to. So a declared ceiling more than
+# CEILING_SLACK_TOLERANCE lines above the core fails too; the fix is to lower
+# the declared number to the current count in the same commit as the trim.
 CORE_CEILING_FILE = ".core-ceiling"
 CORE_CEILING_KEY = "core_max_lines"
+CEILING_SLACK_TOLERANCE = 3
 TARGET_CORE_LINES = 500
 PATH_RE = re.compile(r"`((?:references|scripts|assets)/[^`\s*?]+\.[A-Za-z0-9]+)`")
 BUILD_JUNK = {"__pycache__", ".DS_Store"}
@@ -205,24 +215,25 @@ def check_core_size(skill_md, fails):
     """
     lines = len(skill_md.read_text(encoding="utf-8").splitlines())
     over_target = lines - TARGET_CORE_LINES
+    target_note = (f" ({over_target} over the {TARGET_CORE_LINES}-line target)"
+                   if over_target > 0 else "")
     ceiling = read_core_ceiling(skill_md)
     if ceiling is None:
-        note = f"core SKILL.md {lines} lines (no ceiling declared — not gated"
-        if over_target > 0:
-            note += f"; {over_target} over the {TARGET_CORE_LINES}-line target"
-        print(note + ")")
+        print(f"core {lines} / ceiling none / slack n/a — not gated{target_note}")
         return
+    slack = ceiling - lines
+    print(f"core {lines} / ceiling {ceiling} / slack {slack}{target_note}")
     if lines > ceiling:
         fails.append(
             f"core SKILL.md {lines} lines > this skill's declared ceiling "
             f"{ceiling}. Move content to a reference file — do not raise the "
             f"ceiling.")
-    else:
-        headroom = ceiling - lines
-        note = f"core SKILL.md {lines} lines (ceiling {ceiling}, {headroom} to spare"
-        if over_target > 0:
-            note += f"; {over_target} over the {TARGET_CORE_LINES}-line target"
-        print(note + ")")
+    elif slack > CEILING_SLACK_TOLERANCE:
+        fails.append(
+            f"core SKILL.md {lines} lines, declared ceiling {ceiling}: slack "
+            f"{slack} > tolerance {CEILING_SLACK_TOLERANCE}. Lower "
+            f"{CORE_CEILING_KEY} (or {CORE_CEILING_FILE}) to {lines} in this "
+            f"commit — a trim is locked in, not left as headroom.")
 
 
 def check_reference_indexes(skill_dir, fails):
@@ -247,8 +258,7 @@ def check_reference_indexes(skill_dir, fails):
         template (a summary skeleton, a principles entry, a registry stanza)
         is not mistaken for a section of the file. Every early failure this
         check reported was of exactly that kind."""
-        return re.sub(r"(?ms)^```.*?^```[ \t]*$",
-                      lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+        return blank_fenced_code(text)
 
     refs = skill_dir / "references"
     if not refs.is_dir():
@@ -441,19 +451,92 @@ def check_dir(skill_dir, fails):
         # content residue in every text file of the bundle, not only SKILL.md
         if p.is_file() and p.suffix.lower() in (".md", ".txt", ".yml", ".yaml", ".json"):
             body = p.read_text(encoding="utf-8", errors="replace")
-            # code is where backreferences legitimately live: blank out
-            # fenced blocks and inline spans, keeping line numbers intact
-            prose = re.sub(r"(?ms)^```.*?^```[ \t]*$", lambda m: re.sub(r"[^\n]", " ", m.group(0)), body)
-            prose = re.sub(r"`[^`\n]*`", lambda m: " " * len(m.group(0)), prose)
             rel = p.relative_to(skill_dir)
-            exempt_slots = slots_are_intentional(rel, body)
-            for rx, why in RESIDUE_RES:
-                if why == SLOT_WHY and exempt_slots:
-                    continue
-                m = rx.search(prose)
-                if m:
-                    line = body.count("\n", 0, m.start()) + 1
-                    fails.append(f"edit residue in {p.relative_to(skill_dir)}:{line}: {why} ({m.group(0).strip()!r})")
+            for line, why, hit in residue_hits(rel, body):
+                fails.append(f"edit residue in {rel}:{line}: {why} ({hit!r})")
+
+
+FENCE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+
+
+def blank_fenced_code(text, fill=lambda h: re.sub(r"[^\n]", " ", h)):
+    """Blank every fenced code block, at ANY indentation, keeping line count.
+
+    A fence is ``` or ~~~ (three or more) after any leading whitespace, and it
+    is closed only by a line of the same character, at least as long, with
+    nothing after it. Detecting fences at column zero only read a block
+    indented under a list item — the usual shape for a command inside a
+    numbered step — as prose, so a correct `sed` with a backreference failed
+    the residue check and was rewritten worse to pass it. A fence that never
+    closes is left as prose: the gate errs toward reporting. Every check that
+    must not read code as prose calls this one function (`fill` sets what a
+    blanked line becomes), so the fence model cannot drift between checks.
+    """
+    out, held, fence = [], [], None
+    for line in text.splitlines(keepends=True):
+        if fence is None:
+            m = FENCE_OPEN_RE.match(line)
+            if m:
+                fence, held = m.group(1), [line]
+            else:
+                out.append(line)
+            continue
+        held.append(line)
+        if re.match(r"^[ \t]*%s{%d,}[ \t]*$" % (re.escape(fence[0]), len(fence)), line):
+            out.extend(fill(h) for h in held)
+            fence, held = None, []
+    out.extend(held)          # unclosed fence: prose
+    return "".join(out)
+
+
+def residue_hits(rel, body):
+    """Gate item 7 on one file: [(line, why, matched text)], first hit per rule.
+
+    Code is where backreferences legitimately live: fenced blocks (at any
+    indentation) and inline spans are blanked first, keeping line numbers.
+    """
+    prose = blank_fenced_code(body)
+    prose = re.sub(r"`[^`\n]*`", lambda m: " " * len(m.group(0)), prose)
+    exempt_slots = slots_are_intentional(rel, body)
+    hits = []
+    for rx, why in RESIDUE_RES:
+        if why == SLOT_WHY and exempt_slots:
+            continue
+        m = rx.search(prose)
+        if m:
+            hits.append((body.count("\n", 0, m.start()) + 1, why, m.group(0).strip()))
+    return hits
+
+
+# (name, text, must_fail): each fixture pins one boundary of the residue
+# check. Run with --selftest; exit 1 if any case disagrees.
+RESIDUE_FIXTURES = [
+    ("indented ``` block holding \\1 passes",
+     "1. Normalise:\n\n   ```bash\n   sed -E 's/x(y)/\\1/' f\n   ```\n", False),
+    ("indented ~~~ block holding \\1 passes",
+     "- step\n    ~~~\n    sed -E 's/(a)/\\1/'\n    ~~~\n", False),
+    ("column-0 ``` block holding \\1 passes",
+     "```\ns/(a)/\\1/\n```\n", False),
+    ("indented prose line holding \\1 fails",
+     "1. Step\n\n   Replace it with \\1 here.\n", True),
+    ("prose after a closed indented fence fails",
+     "   ```\n   ok\n   ```\n   then \\1 leaked\n", True),
+    ("a shorter or other-char line does not close the fence",
+     "````\n```\n~~~\ns/(a)/\\1/\n````\n", False),
+    ("unclosed fence stays prose and fails",
+     "   ```\n   s/(a)/\\1/\n", True),
+]
+
+
+def selftest():
+    bad = 0
+    for name, text, must_fail in RESIDUE_FIXTURES:
+        failed = bool(residue_hits(pathlib.Path("fixture.md"), text))
+        ok = failed == must_fail
+        bad += not ok
+        print(f"{'ok  ' if ok else 'FAIL'} {name}")
+    print(f"selftest: {len(RESIDUE_FIXTURES) - bad}/{len(RESIDUE_FIXTURES)} passed")
+    return 1 if bad else 0
 
 
 def check_repo_versions(repo_dir, fails):
@@ -560,8 +643,7 @@ def check_markdown_shape(repo_dir, fails):
     repo_dir = pathlib.Path(repo_dir)
     for p in sorted(repo_dir.glob("*.md")):
         body = p.read_text(encoding="utf-8", errors="replace")
-        prose = re.sub(r"(?ms)^```.*?^```[ \t]*$",
-                       lambda m: re.sub(r"[^\n]+", "~", m.group(0)), body)
+        prose = blank_fenced_code(body, fill=lambda h: re.sub(r"[^\n]+", "~", h))
         lines = prose.splitlines()
         items = [kind(LIST_ITEM_RE.match(l)) for l in lines]
         for i, line in enumerate(lines):
@@ -576,6 +658,35 @@ def check_markdown_shape(repo_dir, fails):
             if tight:
                 fails.append(f"{p.name}:{i + 1}: blank line splits a list in two "
                              f"(same-kind items at the same indent on both sides)")
+
+
+def quote_frontmatter_name(skill_md):
+    """Rewrite an unquoted frontmatter `name: x` to `name: "x"`, in place.
+
+    Provenance: the skill installer writes `name:` back quoted on some installs
+    and unquoted on others, with no visible pattern, but has never been seen
+    REMOVING quotes that were present. Emitting the quoted form here therefore
+    makes most installed copies byte-identical to the staged one, and every
+    installed-vs-staged comparison (the reconciliation gate, keep-two) stops
+    reporting a one-line diff that reviewers learn to wave through. Those
+    comparisons still normalise the line as the backstop. Runs only on the
+    pack path, after every check passed, so the value is known kebab-case.
+    """
+    text = skill_md.read_text(encoding="utf-8")
+    m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+    if not m:
+        return False
+    nm = re.search(r"(?m)^name:[ \t]*([^\s\"'][^\n]*?)[ \t]*$", m.group(1))
+    if not nm or not NAME_RE.match(nm.group(1)):
+        return False          # already quoted, absent, or carrying a comment: leave it
+    start = m.start(1) + nm.start()
+    end = m.start(1) + nm.end()
+    old = text[start:end]
+    new = f'name: "{nm.group(1)}"'
+    skill_md.write_text(text[:start] + new + text[end:], encoding="utf-8")
+    print(f"pack: quoted the frontmatter name in {skill_md} ({old!r} -> {new!r}); "
+          f"the packed copy carries the quoted form")
+    return True
 
 
 def pack(src, out):
@@ -617,6 +728,8 @@ def check_bundle(path, fails):
 def main(argv):
     if len(argv) < 2:
         print(__doc__); return 2
+    if argv[1] == "--selftest":
+        return selftest()
     if "--repo-only" in argv:
         fails = []
         repo = argv[argv.index("--repo-only") + 1]
@@ -641,6 +754,7 @@ def main(argv):
     if repo:
         check_repo_versions(repo, fails)
     if pack_to and not fails:
+        quote_frontmatter_name(pathlib.Path(skill_dir).resolve() / "SKILL.md")
         pack(skill_dir, pack_to); bundle = pack_to
         print(f"packed {pack_to}")
     if bundle:

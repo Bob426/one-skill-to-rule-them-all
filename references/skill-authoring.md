@@ -150,7 +150,14 @@ frontmatter, or a `.core-ceiling` file beside it. `validate-skill-bundle.py`
 then fails when the core exceeds it, with the instruction to move content to
 a reference file rather than raise the number. Seed it at whatever the core
 measures today: the point is not that every skill reaches some ideal size,
-it is that no skill silently grows past where it already is.
+it is that no skill silently grows past where it already is. **The ceiling
+follows trims down.** The validator also fails when the declared ceiling
+sits more than 3 lines above the core's count; the fix is to lower
+`core_max_lines` (or `.core-ceiling`) to the current count in the same
+commit as the trim. Every run reports `core N / ceiling M / slack S`. The
+failure shape: a check that only blocks growth leaves each trim as open
+headroom, and the next ordinary additions spend it without anyone
+deciding to.
 
 A skill that declares neither has not opted in. The count and the distance to
 the 500-line target are still reported; nothing is gated. That is deliberate,
@@ -596,6 +603,20 @@ in layers so any one catches what others miss:
    layer 3 reads examples first, not last, and the pre-publication read
    includes a human pass over every example, usage string and fixture in
    the tree — the one check no script can do for the author.
+9. **Justifications are failure shapes, and examples span verticals
+   (skills published or queued for publication)** — a rule's
+   justification is stated as a present-tense failure shape ("the failure
+   shape: …"), never as the case it came from: no "observed once", no "in
+   the case that produced this", no client complaint, no count from one
+   project. Examples come from at least two unrelated verticals or from a
+   neutral stock vertical, never from the vertical of the session that
+   produced the rule. The failure shape this layer closes: a skill update
+   written from an internal log carries the log's engagement narrative
+   and its client's vertical into published text, and each example passes
+   every term scan on its own while the set identifies the client. No
+   script sees either class, so it is a named human read in the
+   pre-delivery gate (`weekly-review.md`, Delivery) over every section
+   added since the last published tree.
 
 ## Timelessness — shared skills must not capture current state
 
@@ -755,8 +776,10 @@ re-check exists, do not record the value — record how to obtain it.
    silently (the install succeeds, the skill loads, and the missing
    pieces only surface when a reference load or script call fails
    mid-task), and a convention that switches on file count leaves that
-   boundary to be re-derived every time. **Pre-delivery gate — three items, checked at the moment of
-   delivery, not just at drafting time:** (1) every UNQUALIFIED
+   boundary to be re-derived every time. **Pre-delivery gate — checked at the moment of
+   delivery, not just at drafting time.** The item list is the gate in
+   `weekly-review.md`, "Delivering updated skills"; what follows is the
+   authoring detail for the items numbered the same there: (1) every UNQUALIFIED
    `references/`, `scripts/`, `assets/` path in the staged SKILL.md body
    has its file in the staged set — a path qualified with an owning skill
    name (`<skill-name>/references/<file>`) is a cross-reference, exempt by
@@ -787,9 +810,10 @@ re-check exists, do not record the value — record how to obtain it.
    RAW central-directory bytes, because CPython's `zipfile` normalises
    `0x5C` to `/` on read and reports a malformed archive as clean; Windows
    `Compress-Archive` produces exactly this defect for any skill with a
-   subdirectory. `scripts/validate-skill-bundle.py` implements all seven as
+   subdirectory. `scripts/validate-skill-bundle.py` implements that gate's mechanical items as
    assertions and packs a well-formed bundle on any platform; run it where
-   Python is available. Generally: any hard limit the consuming platform
+   Python is available. The gate's one human read, for a published skill,
+   is confidentiality layer 9 above — named, not asserted. Generally: any hard limit the consuming platform
    imposes belongs in this gate as a measurement compared to a bound in
    the same step, not as a rule the author is expected to remember — an
    unasserted metric does not merely miss defects, it manufactures
@@ -1084,7 +1108,7 @@ now carry their own agent skill in-repo — commonly under `agent-skill/`,
 beside it duplicates work, drifts from the maintainers' version and misses
 their updates. One search of the upstream repository (those paths, plus
 "skill" in the README and release notes) settles it — one of the two
-network uses the skill allows, and only once the user has asked for the
+network uses this skill permits, and only once the user has asked for the
 skill. If an official skill
 exists, install it and put only the local delta into a companion, exactly
 as for any other upstream-maintained skill (weekly-review.md, Step 2);
