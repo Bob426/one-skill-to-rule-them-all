@@ -444,6 +444,17 @@ def check_dir(skill_dir, fails):
     elif name != skill_dir.name:
         fails.append(f"frontmatter: `name` {name!r} != directory {skill_dir.name!r}")
     desc = folded_description(fm)
+    # A space before `#` starts a YAML comment, so a plain (unquoted) value
+    # ends there and the block still parses: the raw line reads whole, the
+    # installer gets a shorter value, and no parse check can see it.
+    line = (re.search(r"(?m)^description:[ \t]*(.*)$", fm) or [None, ""])[1]
+    if line[:1] not in ("", '"', "'", ">", "|") and re.search(r"[ \t]#", line):
+        fails.append(
+            "frontmatter: unquoted `description` contains ` #`, which starts a "
+            "YAML comment and cuts the value there — double-quote the value")
+    parsed = (data or {}).get("description")
+    if yaml_available and isinstance(parsed, str):
+        desc = parsed.strip()       # measure what the installer's parser returns
     if not desc:
         fails.append("frontmatter: `description` missing")
     elif len(desc) > MAX_DESCRIPTION_CHARS:

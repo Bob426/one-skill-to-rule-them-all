@@ -811,11 +811,14 @@ re-check exists, do not record the value — record how to obtain it.
    descriptions puts others near the boundary too, and only measuring the
    set reveals it; (4) `name` is kebab-case and matches the containing
    directory; the frontmatter parses as YAML with both required keys. A
-   `description:` (or `name:`) value that contains `: ` anywhere, or that
-   starts or ends with a YAML-special character (`#`, `*`, `&`, `!`, `|`,
-   `>`, `{`, `[`, `'`, `"`), must be double-quoted or reworded to avoid
-   the colon — an unquoted `: ` inside the value turns the rest of the
-   line into a nested key and the whole block stops parsing. The
+   `description:` (or `name:`) value that contains `: ` or ` #` anywhere,
+   or that starts or ends with a YAML-special character (`#`, `*`, `&`,
+   `!`, `|`, `>`, `{`, `[`, `'`, `"`), must be double-quoted or reworded —
+   an unquoted `: ` inside the value turns the rest of the line into a
+   nested key and the whole block stops parsing, and an unquoted ` #` is
+   worse: YAML starts a comment there, the block still parses, and the
+   value silently ends at the space (`see #146` and `{Author, 2021 #123}`
+   are cut; `page#section` is not, because the comment needs the space). The
    validator reporting "`name` missing" on a frontmatter that visibly has
    a `name:` line is the signature of an unparseable block, not of a
    missing field: fix the quoting, not the name. The quoting rule for the
