@@ -66,7 +66,7 @@ fi
 today=$(date +%F)
 
 # --- archival sweep: stale resolved files move before the id is read --------
-n_files=$(find "$d" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
+n_files=$(find "$d" -maxdepth 1 -name '*.md' ! -empty | wc -l | tr -d ' ')   # a zero-byte file gives awk no line to count
 seen=$(cd "$d" && awk 'FNR==1 {n++; nextfile} END {print n+0}' *.md 2>/dev/null)   # files the sweep's glob reaches, counted apart from the sweep
 if [ "$n_files" -gt 0 ] && [ "${seen:-0}" -eq 0 ]; then
   echo "ARCHIVAL SWEEP BROKEN — $n_files files present, 0 examined" >&2; exit 1
