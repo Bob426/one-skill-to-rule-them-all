@@ -546,6 +546,10 @@ reading session owns it. First hold the tree against the manifest,
 every time: list the top-level entries of `skill-updates/` (everything
 but `PENDING.md`) and report, in one line, every entry no manifest
 entry names — "N staging directories without a manifest entry: …".
+After the four-way classification below, mark in that line each reported
+directory that holds only copies classified (a) or (b) and their
+`.skill` packages — the installed copies keep-two retains — as
+`retained`, so the unmarked names are the ones nothing explains.
 Enumerate the listing rather than matching a date-shaped name:
 discriminated anchors (`<date>-<slug>`, `<date>.2`) and hand-over
 material are valid names, and an index shows only what someone entered,
