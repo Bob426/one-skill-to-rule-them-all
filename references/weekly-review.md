@@ -1273,7 +1273,9 @@ for observation interdependencies (which observation supersedes, refines,
 or folds into which — the parent must state this per cluster explicitly,
 or subagents applying observations sequentially produce patch-on-patch
 instead of coherent final state), the confidentiality rules for
-open-source skills, the rule **never introduce `: ` into an unquoted
+open-source skills, the instruction to read `references/skill-authoring.md`
+in its own context before its first write to a skill file (the parent's
+load does not carry over), the rule **never introduce `: ` into an unquoted
 frontmatter value** (a subagent extending a `description:` is the
 common way a staged skill's frontmatter stops parsing — see
 `references/skill-authoring.md`, pre-delivery gate item 4), the rule

@@ -77,7 +77,7 @@ skill" (some upload paths keep only `SKILL.md`); its episodes do not run.
   review triggers or the user asks for one.**
 - `references/skill-authoring.md` — taxonomy, structure, licensing,
   attribution, confidentiality layers, live-file editing, relocation checks.
-  **Load before creating or editing any skill.**
+  **Load before writing any `SKILL.md` or skill file, setup work included.**
 - `references/observation-log.md` — storage layout, frontmatter fields,
   helper snippets, archival details, and the reasoning behind the rules.
   **Load when setting up the log for the first time, when archiving, when
