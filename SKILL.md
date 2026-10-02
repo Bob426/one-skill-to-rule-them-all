@@ -289,14 +289,14 @@ no → task context, not an observation. Before minting a `proposes_skill`
 name, reuse a fitting existing candidate — independently logged proposals
 for one skill rarely share a name.
 
-**Check for a restatement before writing.** Before creating the file,
-list the open observations that name the same target skill (the scan at
-session start already holds their titles; otherwise `find observation-log
--name '*.md' -exec grep -l "skill:.*<skill>" {} +`) and read those titles.
-If the finding is the same one restated — the same rule, the same failure
-shape, a different example — extend the existing entry instead: append the
-new instance to its body, add the session to `session_context`, edit that
-one file. Duplication is only visible in aggregate (measured on one log:
+**Check for a restatement before writing.** Before creating the file, list
+the open observations that name the same target skill (the scan at session
+start already holds their titles; otherwise `find observation-log -name
+'*.md' -exec grep -l "skill:.*<skill>" {} +`) and read those titles. If the
+finding is the same one restated — the same rule, the same failure shape, a
+different example — extend the existing entry instead: append the new
+instance to its body, add the session to `session_context`, widen `title:`
+to cover it. Duplication is only visible in aggregate (measured on one log:
 roughly forty of ninety-one open entries were one finding restated), and a
 near-duplicate costs a capture every session and a triage every review.
 
