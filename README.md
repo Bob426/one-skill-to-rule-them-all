@@ -203,6 +203,8 @@ I would like to thank the following creators, platforms, publications, companies
 - Divad: [https://divadsanders.medium.com/i-fixed-everything-wrong-with-claude-code-5-best-claude-plugins-c1af8d813ee1](https://divadsanders.medium.com/i-fixed-everything-wrong-with-claude-code-5-best-claude-plugins-c1af8d813ee1)
 - Abhijay Arora Vuyyuru (AI Action Letter): [https://abhijayvuyyuru.substack.com/p/dont-use-claude-code-without-these](https://abhijayvuyyuru.substack.com/p/dont-use-claude-code-without-these)
 - The Ai Impact: [https://www.theaiimpact.co/guides/claude-code-add-ons](https://www.theaiimpact.co/guides/claude-code-add-ons)
+- Bill Prin: [https://x.com/Bill_Prin/status/2103189962640552198](https://x.com/Bill_Prin/status/2103189962640552198)
+- Jake Austin: [https://www.snapchat.com/@itsjakeaustin3/spotlight/W7_EDlXWTBiXAEEniNoMPwAAYaGlrcndlbmJsAaDY8w3vAaDY8nNPAAAAAw](https://www.snapchat.com/@itsjakeaustin3/spotlight/W7_EDlXWTBiXAEEniNoMPwAAYaGlrcndlbmJsAaDY8w3vAaDY8nNPAAAAAw)
 
 If I forgot to list your recommendation here, please let me know or submit it via a PR in the same format as the others.
 
