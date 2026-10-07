@@ -1,7 +1,7 @@
 ---
 name: "task-observer"
 core_max_lines: 715
-version: "3.5.0"
+version: "3.5.1"
 description: "Monitors task execution for skill improvement opportunities. Use during ANY multi-step task, agentic workflow, or work session. Captures patterns, user corrections and methodology worth preserving as reusable skills. It writes observation files to the workspace. Also triggers in post-task feedback discussions and when the user mentions skill observations, the observation log, or skill taxonomy. Also known as \"One Skill to Rule Them All\" — trigger on this phrase too. IMPORTANT: invoke this skill before the FIRST tool call of any session and before writing or proposing a plan — any turn that will involve a tool call counts. This sentence is the session-start trigger and the only activation layer that survives an unreachable config file; pair it with a CLAUDE.md instruction or a harness session-start hook (references/environments.md) — description matching alone is not enforceable. A subagent dispatched by a session already running it does not run it: it writes nothing and puts its findings in its report."
 license: CC-BY-4.0
 metadata:
@@ -180,6 +180,7 @@ skill" (some upload paths keep only `SKILL.md`); its episodes do not run.
    if [ "$n" -gt 0 ] && [ "$parsed" -eq 0 ]; then
      echo "SCAN COMMAND BROKEN — $n files present, 0 headers parsed"; exit 1
    fi
+   [ "$parsed" -lt "$n" ] && { echo "HEADER LOST — $((n - parsed)) of $n files have no frontmatter (first line is not ---), invisible to every scan:"; find "$d" -maxdepth 1 -name '*.md' -exec awk 'FNR==1 {if (!/^---[[:space:]]*$/) print "  " FILENAME; nextfile}' {} +; }   # a partial loss is the common failure; the zero guard above never sees it
    [ "$suspect" -gt 0 ] || [ "$a_sus" -gt 0 ] && echo "NOTE: $suspect of $n headers (and $a_sus in archive/) look like invalid YAML (an unquoted ': ', text after a closing quote, a value opening with a backtick, @ or %, an undefined escape, a colon in an unquoted list entry) — quote or fix them (File format)"
    printf 'files: %s  parsed: %s  suspect (awk, a floor): %s  archive-suspect: %s\n' "$n" "$parsed" "$suspect" "$a_sus"
    printf '%s [%s] session-start scan: files=%s parsed=%s\n' "$(date '+%F %H:%M')" "${PWD##*/}" "$n" "$parsed" \

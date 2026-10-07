@@ -378,6 +378,7 @@ a_sus=0; [ -d "$d/archive" ] && a_sus=$(find "$d/archive" -maxdepth 1 -name '*.m
 if [ "$n" -gt 0 ] && [ "$parsed" -eq 0 ]; then
   echo "SCAN COMMAND BROKEN — $n files present, 0 headers parsed"; exit 1
 fi
+[ "$parsed" -lt "$n" ] && { echo "HEADER LOST — $((n - parsed)) of $n files have no frontmatter (first line is not ---), invisible to every scan:"; find "$d" -maxdepth 1 -name '*.md' -exec awk 'FNR==1 {if (!/^---[[:space:]]*$/) print "  " FILENAME; nextfile}' {} +; }   # a partial loss is the common failure; the zero guard above never sees it
 [ "$suspect" -gt 0 ] || [ "$a_sus" -gt 0 ] && echo "NOTE: $suspect of $n headers (and $a_sus in archive/) look like invalid YAML (an unquoted ': ', text after a closing quote, a value opening with a backtick, @ or %, an undefined escape, a colon in an unquoted list entry) — quote or fix them (File format)"
 printf 'files: %s  parsed: %s  suspect (awk, a floor): %s  archive-suspect: %s\n' "$n" "$parsed" "$suspect" "$a_sus"
 printf '%s [%s] session-start scan: files=%s parsed=%s\n' "$(date '+%F %H:%M')" "${PWD##*/}" "$n" "$parsed" \
