@@ -211,8 +211,13 @@ skill" (some upload paths keep only `SKILL.md`); its episodes do not run.
    copy against live and classify it (a bare "differs" is not a verdict:
    live moves on legitimately), and name every directory no manifest entry
    covers. The cases are in `references/weekly-review.md` ("Staged-work
-   reconciliation gate") — load it before judging any entry. Then say "N
-   staged updates awaiting review" in one line.
+   reconciliation gate") — load it before judging any entry. Then say, in
+   one line, "N staged, M await install" — M counted from the
+   classification just made, so only the reconciliation can fill the line.
+   "N staged, not yet checked" is not a form of it: an announcement that can
+   be written without the check invites deferring the check, and the
+   reconciliation it deferred cost about ten tool calls and found nothing
+   awaiting install.
 7. **First run, or a named past session.** If the log is empty and the
    project has history (handover or decision docs, commit history, test
    scripts, a notes or memory directory, an existing CLAUDE.md), offer a
